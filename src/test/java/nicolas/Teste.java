@@ -19,9 +19,9 @@ import org.apache.commons.csv.CSVRecord;
 
 public class Teste {
 
-    static final int LIMITE = 1000;
+    static final int LIMITE = 3000;
     static final int TAMANHO_MINIMO = 5;
-    
+
     public static void main(String[] args) throws Exception {
         Teste teste = new Teste();
         long l = System.currentTimeMillis();
@@ -30,37 +30,41 @@ public class Teste {
 
         int cutoff = 2;
         int trainingIterations = 30;
-        InputStream dataIn = new FileInputStream("E:\\Documentos\\Projetos\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\sentiment.bin");
+        InputStream dataIn = new FileInputStream("O:\\GPD\\Nicolas\\Projetos\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\sentiment.bin");
         ObjectStream lineStream = new PlainTextByLineStream(dataIn, "UTF-8");
         ObjectStream sampleStream = new DocumentSampleStream(lineStream);
         DoccatModel model = DocumentCategorizerME.train("pt", sampleStream, cutoff, trainingIterations);
         DocumentCategorizerME myCategorizer = new DocumentCategorizerME(model);
-        
+
         for (Atendimento atendimento : atendimentos) {
             List<String> sentences = teste.extractSentences(atendimento.getTexto());
 //            System.out.println("----------------------");
             for (int i = 0; i < sentences.size(); i++) {
                 String sentence = sentences.get(i);
-                
+
                 double[] outcomes = myCategorizer.categorize(sentence);
                 String category = myCategorizer.getBestCategory(outcomes);
                 int index = myCategorizer.getIndex(category);
                 double prob = outcomes[index];
-                
+
+                if (category.equals("0") || category.equals("1")) {
+                    continue;
+                }
+
                 if (prob < 0.8) {
                     continue;
                 }
-                
+
                 System.out.println(i +"\t"+category +" (" + new DecimalFormat("#00.00").format(prob * 100) + "%)\t"+sentence);
             }
         }
     }
-    
+
     private List<String> extractSentences(String text) throws IOException {
         List<String> list = new ArrayList<>();
         // always start with a model, a model is learned from training data
 //      InputStream is = Teste.class.getResourceAsStream("/com/github/gdchelper/gdchelperws/models/pt-sent.bin");
-        InputStream is = new FileInputStream("E:\\Documentos\\Projetos\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\pt-sent.bin");
+        InputStream is = new FileInputStream("O:\\GPD\\Nicolas\\Projetos\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\pt-sent.bin");
         SentenceModel model = new SentenceModel(is);
         SentenceDetectorME sdetector = new SentenceDetectorME(model);
 
@@ -75,7 +79,7 @@ public class Teste {
                 list.add(sentence);
             }
         }
-        
+
 //        String sentences[] = sdetector.sentDetect();
 //        System.out.println("----------------------");
 //        for (int i = 0; i < sentences.length; i++) {
@@ -84,13 +88,13 @@ public class Teste {
 //        is.close();
         return list;
     }
-    
+
     private String preprocessLine(String line) {
         line = line.replaceAll("^\\s*\\[\\d\\d:\\d\\d:\\d\\d\\] .*?: ", "");
         line = line.replaceAll("^\\- .*?: ", "");
         return line;
     }
-    
+
     private boolean filterSentence(String sentence) {
         if (sentence.length() < TAMANHO_MINIMO) {
             return true;
@@ -103,11 +107,11 @@ public class Teste {
         }
         return false;
     }
-    
+
     private List<Atendimento> loadAtendimentos() throws IOException {
         List<Atendimento> atendimentos = new ArrayList<>();
         int i = 0;
-        try (FileReader reader = new FileReader("e:\\exportar\\exportar.csv")) {
+        try (FileReader reader = new FileReader("a:\\exportar.csv")) {
             Iterable<CSVRecord> records = CSVFormat.EXCEL.parse(reader);
             for (CSVRecord record : records) {
                 if (i == 0) { // Pula cabeçalho
@@ -125,7 +129,7 @@ public class Teste {
         }
         return atendimentos;
     }
-    
-    
-    
+
+
+
 }
