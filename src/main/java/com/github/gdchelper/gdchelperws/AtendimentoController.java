@@ -39,7 +39,7 @@ public class AtendimentoController {
         EntityManager em = persistenceManager.create();
         Query q = em.createQuery("SELECT a FROM Atendimento a");
         List<Atendimento> userList = q.getResultList();
-        em .close();
+        em.close();
         result.use(Results.json()).withoutRoot().from(userList).serialize();
     }
 }
