@@ -1,12 +1,15 @@
 package nicolas;
 
+import com.github.gdchelper.gdchelperws.SentencePreprocessor;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import opennlp.tools.doccat.DoccatModel;
 import opennlp.tools.doccat.DocumentCategorizerME;
 import opennlp.tools.doccat.DocumentSampleStream;
@@ -29,13 +32,15 @@ public class Teste {
         System.out.println(atendimentos.size() + " atendimentos carregados em " + (System.currentTimeMillis() - l) + "ms");
 
         int cutoff = 2;
-        int trainingIterations = 30;
-        InputStream dataIn = new FileInputStream("O:\\GPD\\Nicolas\\Projetos\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\sentiment.bin");
+        int trainingIterations = 34;
+        InputStream dataIn = new FileInputStream("D:\\Projects\\GDCHelper\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\sentiment.bin");
         ObjectStream lineStream = new PlainTextByLineStream(dataIn, "UTF-8");
         ObjectStream sampleStream = new DocumentSampleStream(lineStream);
         DoccatModel model = DocumentCategorizerME.train("pt", sampleStream, cutoff, trainingIterations);
         DocumentCategorizerME myCategorizer = new DocumentCategorizerME(model);
 
+        Map<String, Integer> totais = new HashMap<>();
+        
         for (Atendimento atendimento : atendimentos) {
             List<String> sentences = teste.extractSentences(atendimento.getTexto());
 //            System.out.println("----------------------");
@@ -47,30 +52,45 @@ public class Teste {
                 int index = myCategorizer.getIndex(category);
                 double prob = outcomes[index];
 
-                if (category.equals("0") || category.equals("1")) {
+                if (!totais.containsKey(category)) {
+                    totais.put(category, 0);
+                }
+
+                if (prob < 0.75) {
                     continue;
                 }
 
-                if (prob < 0.8) {
+                totais.put(category, totais.get(category) + 1);
+                
+                if (category.equals("0") || category.equals("1") || category.equals("neutro")) {
+                    continue;
+                }
+                
+                if (prob < 0.90) {
                     continue;
                 }
 
                 System.out.println(i +"\t"+category +" (" + new DecimalFormat("#00.00").format(prob * 100) + "%)\t"+sentence);
             }
         }
+        
+        for (Map.Entry<String, Integer> entry : totais.entrySet()) {
+            System.out.println(entry.getKey() + "\t" + entry.getValue());
+        }
+        
     }
 
     private List<String> extractSentences(String text) throws IOException {
         List<String> list = new ArrayList<>();
         // always start with a model, a model is learned from training data
 //      InputStream is = Teste.class.getResourceAsStream("/com/github/gdchelper/gdchelperws/models/pt-sent.bin");
-        InputStream is = new FileInputStream("O:\\GPD\\Nicolas\\Projetos\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\pt-sent.bin");
+        InputStream is = new FileInputStream("D:\\Projects\\GDCHelper\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\pt-sent.bin");
         SentenceModel model = new SentenceModel(is);
         SentenceDetectorME sdetector = new SentenceDetectorME(model);
 
         String[] lines = text.split("\n");
         for (String line : lines) {
-            line = preprocessLine(line);
+            line = new SentencePreprocessor().process(line);
             String[] sentences = sdetector.sentDetect(line);
             for (String sentence : sentences) {
                 if (filterSentence(sentence)) {
@@ -89,12 +109,6 @@ public class Teste {
         return list;
     }
 
-    private String preprocessLine(String line) {
-        line = line.replaceAll("^\\s*\\[\\d\\d:\\d\\d:\\d\\d\\] .*?: ", "");
-        line = line.replaceAll("^\\- .*?: ", "");
-        return line;
-    }
-
     private boolean filterSentence(String sentence) {
         if (sentence.length() < TAMANHO_MINIMO) {
             return true;
@@ -111,7 +125,7 @@ public class Teste {
     private List<Atendimento> loadAtendimentos() throws IOException {
         List<Atendimento> atendimentos = new ArrayList<>();
         int i = 0;
-        try (FileReader reader = new FileReader("a:\\exportar.csv")) {
+        try (FileReader reader = new FileReader("c:\\users\\pichau\\desktop\\exportar.csv")) {
             Iterable<CSVRecord> records = CSVFormat.EXCEL.parse(reader);
             for (CSVRecord record : records) {
                 if (i == 0) { // Pula cabeçalho
