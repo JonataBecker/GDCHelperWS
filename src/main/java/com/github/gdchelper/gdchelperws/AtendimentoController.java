@@ -4,9 +4,12 @@ import br.com.caelum.vraptor.Controller;
 import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.view.Results;
-import java.util.Arrays;
+import com.github.gdchelper.jpa.Atendimento;
+import com.github.gdchelper.jpa.PersistenceManager;
 import java.util.List;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 
 /**
  *
@@ -16,23 +19,27 @@ import javax.inject.Inject;
 public class AtendimentoController {
 
     private final Result result;
+    private final PersistenceManager persistenceManager;
 
     /**
      * @deprecated CDI eyes only
      */
     public AtendimentoController() {
-        this.result = null;
+        this(null, null);
     }
 
     @Inject
-    public AtendimentoController(Result result) {
+    public AtendimentoController(Result result, PersistenceManager persistenceManager) {
         this.result = result;
-    }
+        this.persistenceManager = persistenceManager;
+    }   
 
-    
     @Get("/atendimentos")
     public void atendimento() {
-        List<String> obj = Arrays.asList("atm 1", "2 atm");
-        result.use(Results.json()).withoutRoot().from(obj).serialize();
+        EntityManager em = persistenceManager.create();
+        Query q = em.createQuery("SELECT a FROM Atendimento a");
+        List<Atendimento> userList = q.getResultList();
+        em.close();
+        result.use(Results.json()).withoutRoot().from(userList).serialize();
     }
 }
