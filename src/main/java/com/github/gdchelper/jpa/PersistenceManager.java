@@ -18,6 +18,7 @@ public class PersistenceManager {
 
     public EntityManager create() {
         if (factory == null) {
+//            factory = Persistence.createEntityManagerFactory("mysql");
             factory = Persistence.createEntityManagerFactory("h2");
         }
         return factory.createEntityManager();
