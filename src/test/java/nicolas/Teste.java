@@ -25,10 +25,10 @@ import org.apache.commons.csv.CSVRecord;
 
 public class Teste {
 
-    static final String DADOS = "c:\\users\\pichau\\desktop\\exportar.csv";
-    static final String SENTIMENT = "D:\\Projects\\GDCHelper\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\sentiment.bin";
-    static final String SENTENCER = "D:\\Projects\\GDCHelper\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\pt-sent.bin";
-    static final int LIMITE = 3000;
+    static final String DADOS = "E:\\Sistemas de Informação\\Projeto Integrador\\exportar.csv";
+    static final String SENTIMENT = "E:\\Projetos\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\sentiment.bin";
+    static final String SENTENCER = "E:\\Projetos\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\pt-sent.bin";
+    static final int LIMITE = 5000;
     static final int TAMANHO_MINIMO = 5;
     static final double TREINAMENTO = 0.8;
 
@@ -101,17 +101,49 @@ public class Teste {
     private void testa(List<FraseTreinamento> teste, DocumentCategorizerME myCategorizer) {
         int certos = 0;
         int errados = 0;
+        
+        Map<String, Map<String, Integer>> matriz = new HashMap<>();
+        
         for (FraseTreinamento fraseTreinamento : teste) {
             double[] outcomes = myCategorizer.categorize(fraseTreinamento.getFrase());
-            String category = myCategorizer.getBestCategory(outcomes);
-            if (category.equals(fraseTreinamento.getCategoria())) {
+            String classificado = myCategorizer.getBestCategory(outcomes);
+            String esperado = fraseTreinamento.getCategoria();
+            if (classificado.equals(esperado)) {
                 certos++;
             } else {
                 errados++;
             }
+            
+            if (matriz.get(classificado) == null) {
+                matriz.put(classificado, new HashMap<>());
+            }
+            if (matriz.get(classificado).get(esperado) == null) {
+                matriz.get(classificado).put(esperado, 0);
+            }
+            int atual = matriz.get(classificado).get(esperado);
+            matriz.get(classificado).put(esperado, atual + 1);
         }
         System.out.println("Acertei " + certos + " (" + ((double)certos / (double)(certos + errados) * 100) + "%)");
         System.out.println("Errei " + errados + " (" + ((double)errados / (double)(certos + errados) * 100) + "%)");
+        
+        boolean first = true;
+        
+        for (Map.Entry<String, Map<String, Integer>> entry : matriz.entrySet()) {
+            if (first) {
+                System.out.print("\t");
+                for (Map.Entry<String, Integer> valores : entry.getValue().entrySet()) {
+                    System.out.print(valores.getKey() + "\t");
+                }
+                System.out.println("<- Esperado");
+                first = false;
+            }
+            System.out.print(entry.getKey() + "\t");
+            for (Map.Entry<String, Integer> valores : entry.getValue().entrySet()) {
+                System.out.print(valores.getValue() + "\t");
+            }
+            System.out.println();
+        }
+        System.out.println(" ^ \n | \n Classificado");
     }
     
     private List<String> extractSentences(String text) throws IOException {
@@ -162,7 +194,7 @@ public class Teste {
         try (FileReader reader = new FileReader(DADOS)) {
             Iterable<CSVRecord> records = CSVFormat.EXCEL.parse(reader);
             for (CSVRecord record : records) {
-                if (i == 0) { // Pula cabeçalho
+                if (i == 0 || i < 3000) { // Pula cabeçalho
                     i++;
                     continue;
                 }
