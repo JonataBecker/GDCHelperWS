@@ -19,6 +19,13 @@ public class Atendimento {
     @Column(length = 60000)
     private String mensagem;
 
+    public Atendimento() {
+    }
+    
+    public Atendimento(String mensagem) {
+        this.mensagem = mensagem;
+    }
+    
     public int getId() {
         return id;
     }

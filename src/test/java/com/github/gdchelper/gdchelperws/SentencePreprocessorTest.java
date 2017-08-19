@@ -5,7 +5,6 @@
  */
 package com.github.gdchelper.gdchelperws;
 
-import com.github.gdchelper.db.SentencePreprocessor;
 import static org.junit.Assert.*;
 
 /**
@@ -31,6 +30,9 @@ public class SentencePreprocessorTest {
         assertEquals("se ao gravar o registro 510", processor.process("---> se ao gravar o registro 510"));
         assertEquals("acessar o fat 1.2-a", processor.process(">>> acessar o fat 1.2-a"));
         assertEquals("sim", processor.process("<piv2600-1-sab>: sim"));
+        assertEquals("tambem lhe enviei um e-mail", processor.process("3) tambem lhe enviei um e-mail"));
+        assertEquals("tambem lhe enviei um e-mail", processor.process("3- tambem lhe enviei um e-mail"));
+        assertEquals("tambem lhe enviei um e-mail", processor.process("3: tambem lhe enviei um e-mail"));
     }
     
 }

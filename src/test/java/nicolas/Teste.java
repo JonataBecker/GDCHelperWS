@@ -1,7 +1,8 @@
 package nicolas;
 
 import com.github.gdchelper.db.DataFileReader;
-import com.github.gdchelper.db.SentencePreprocessor;
+import com.github.gdchelper.gdchelperws.SentenceFilter;
+import com.github.gdchelper.gdchelperws.SentencePreprocessor;
 import com.github.gdchelper.jpa.Atendimento;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -12,8 +13,11 @@ import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 import opennlp.tools.doccat.DoccatModel;
 import opennlp.tools.doccat.DocumentCategorizerME;
@@ -25,11 +29,14 @@ import opennlp.tools.util.PlainTextByLineStream;
 
 public class Teste {
 
-    static final String DADOS = "c:\\users\\pichau\\desktop\\exportar.csv";
-    static final String SENTIMENT = "D:\\Projects\\GDCHelper\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\sentiment.bin";
-    static final String SENTENCER = "D:\\Projects\\GDCHelper\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\pt-sent.bin";
+    static final String DADOS = "E:\\exportar\\exportar.csv";
+    
+    static final String SENTIMENT = "E:\\Documentos\\Projetos\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\sentiment.bin";
+    static final String SENTENCER = "E:\\Documentos\\Projetos\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\pt-sent.bin";
+    static final int LIMITE = 1000;
     static final int TAMANHO_MINIMO = 5;
-    static final double TREINAMENTO = 0.8;
+    static final double TREINAMENTO = 0.7;
+    static final int SEED = 2;
 
     public static void main(String[] args) throws Exception {
         Teste t = new Teste();
@@ -43,9 +50,12 @@ public class Teste {
         // TESTE: IGNORA NEUTRO
         classificados = classificados.stream().filter((frase) -> !frase.getCategoria().equals("neutro")).collect(Collectors.toList());
         
-        int trainingIterations = (int) (classificados.size() * TREINAMENTO);
-        List<FraseTreinamento> treinamento = classificados.subList(0, trainingIterations);
-        List<FraseTreinamento> teste = classificados.subList(trainingIterations, classificados.size());
+        List<FraseTreinamento> treinamento = new ArrayList<>(classificados);
+        List<FraseTreinamento> teste = t.divide(treinamento);
+        Set<String> classes = new HashSet<>();
+        for (FraseTreinamento classificado : classificados) {
+            classes.add(classificado.getCategoria());
+        }
         
         System.out.println(treinamento.size() + " registros de treinamento");
         System.out.println(teste.size() + " registros de teste");
@@ -53,7 +63,7 @@ public class Teste {
         int cutoff = 2;
         ObjectStream lineStream = new PlainTextByLineStream(t.getStreamFrom(treinamento), "UTF-8");
         ObjectStream sampleStream = new DocumentSampleStream(lineStream);
-        DoccatModel model = DocumentCategorizerME.train("pt", sampleStream, cutoff, trainingIterations);
+        DoccatModel model = DocumentCategorizerME.train("pt", sampleStream, cutoff, treinamento.size());
         DocumentCategorizerME myCategorizer = new DocumentCategorizerME(model);
 
         Map<String, Integer> totais = new HashMap<>();
@@ -95,24 +105,66 @@ public class Teste {
             System.out.println(entry.getKey() + "\t" + entry.getValue());
         }
 
-        t.testa(teste, myCategorizer);
+        t.testa(teste, myCategorizer, classes);
         
     }
 
-    private void testa(List<FraseTreinamento> teste, DocumentCategorizerME myCategorizer) {
+    private List<FraseTreinamento> divide(List<FraseTreinamento> treinamento) {
+        List<FraseTreinamento> teste = new ArrayList<>();
+        int registrosTeste = (int) (treinamento.size() * (1d - TREINAMENTO));
+        Random r = new Random(SEED + treinamento.size());
+        for (int i = 0; i < registrosTeste; i++) {
+            int index = r.nextInt(treinamento.size());
+            teste.add(treinamento.remove(index));
+        }
+        return teste;
+    }
+    
+    private void testa(List<FraseTreinamento> teste, DocumentCategorizerME myCategorizer, Set<String> classes) {
         int certos = 0;
         int errados = 0;
+        
+        Map<String, Map<String, Integer>> matriz = new HashMap<>();
+        for (String chute : classes) {
+            matriz.put(chute, new HashMap<>());
+            for (String real : classes) {
+                matriz.get(chute).put(real, 0);
+            }
+        }
+        
+        
         for (FraseTreinamento fraseTreinamento : teste) {
             double[] outcomes = myCategorizer.categorize(fraseTreinamento.getFrase());
-            String category = myCategorizer.getBestCategory(outcomes);
-            if (category.equals(fraseTreinamento.getCategoria())) {
+            String classificado = myCategorizer.getBestCategory(outcomes);
+            String esperado = fraseTreinamento.getCategoria();
+            if (classificado.equals(esperado)) {
                 certos++;
             } else {
                 errados++;
             }
+            System.out.println(classificado + " " + esperado);
+            int atual = matriz.get(classificado).get(esperado);
+            matriz.get(classificado).put(esperado, atual + 1);
         }
-        System.out.println("Acertei " + certos + " (" + ((double)certos / (double)(certos + errados) * 100) + "%)");
-        System.out.println("Errei " + errados + " (" + ((double)errados / (double)(certos + errados) * 100) + "%)");
+        System.out.println("Acertei " + certos + "/" + (certos + errados) + " (" + ((double)certos / (double)(certos + errados) * 100) + "%)");
+        
+        System.out.print("\t");
+        for (String classe : classes) {
+            System.out.print(classe + "\t");
+        }
+        System.out.println("<- Esperado");
+        for (String chute : classes) {
+            System.out.print(chute + "\t");
+            for (String real : classes) {
+                if (chute.equals(real)) {
+                    System.out.print(matriz.get(chute).get(real) + "*\t");
+                } else {
+                    System.out.print(matriz.get(chute).get(real) + "\t");
+                }
+            }
+            System.out.println();
+        }
+        System.out.println(" ^ \n | \n Classificado");
     }
     
     private List<String> extractSentences(String text) throws IOException {
@@ -128,7 +180,7 @@ public class Teste {
             line = new SentencePreprocessor().process(line);
             String[] sentences = sdetector.sentDetect(line);
             for (String sentence : sentences) {
-                if (filterSentence(sentence)) {
+                if (!new SentenceFilter().test(sentence)) {
                     break;
                 }
                 list.add(sentence);
@@ -144,19 +196,6 @@ public class Teste {
         return list;
     }
 
-    private boolean filterSentence(String sentence) {
-        if (sentence.length() < TAMANHO_MINIMO) {
-            return true;
-        }
-        if (sentence.contains("_Rech")) {
-            return true;
-        }
-        if (sentence.startsWith("To:") || sentence.startsWith("From:") || sentence.startsWith("Subject:")) {
-            return true;
-        }
-        return false;
-    }
-
     private List<FraseTreinamento> loadTreinamentos() throws IOException {
         List<FraseTreinamento> treinamentos = new ArrayList<>();
         int i = 0;
@@ -165,6 +204,9 @@ public class Teste {
                 String l = reader.readLine();
                 if (l == null) {
                     break;
+                }
+                if (l.trim().isEmpty()) {
+                    continue;
                 }
                 String[] parts = l.split("\\s+", 2);
                 treinamentos.add(new FraseTreinamento(parts[0], new SentencePreprocessor().process(parts[1])));
