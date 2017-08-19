@@ -12,9 +12,11 @@ import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 import opennlp.tools.doccat.DoccatModel;
 import opennlp.tools.doccat.DocumentCategorizerME;
@@ -34,8 +36,8 @@ public class Teste {
     static final String SENTENCER = "E:\\Documentos\\Projetos\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\pt-sent.bin";
     static final int LIMITE = 1000;
     static final int TAMANHO_MINIMO = 5;
-    static final double TREINAMENTO = 0.8;
-    static final int SEED = 1;
+    static final double TREINAMENTO = 0.7;
+    static final int SEED = 2;
 
     public static void main(String[] args) throws Exception {
         Teste t = new Teste();
@@ -47,8 +49,12 @@ public class Teste {
         // TESTE: IGNORA NEUTRO
         classificados = classificados.stream().filter((frase) -> !frase.getCategoria().equals("neutro")).collect(Collectors.toList());
         
-        List<FraseTreinamento> treinamento = classificados;
+        List<FraseTreinamento> treinamento = new ArrayList<>(classificados);
         List<FraseTreinamento> teste = t.divide(treinamento);
+        Set<String> classes = new HashSet<>();
+        for (FraseTreinamento classificado : classificados) {
+            classes.add(classificado.getCategoria());
+        }
         
         System.out.println(treinamento.size() + " registros de treinamento");
         System.out.println(teste.size() + " registros de teste");
@@ -98,7 +104,7 @@ public class Teste {
             System.out.println(entry.getKey() + "\t" + entry.getValue());
         }
 
-        t.testa(teste, myCategorizer);
+        t.testa(teste, myCategorizer, classes);
         
     }
 
@@ -113,11 +119,18 @@ public class Teste {
         return teste;
     }
     
-    private void testa(List<FraseTreinamento> teste, DocumentCategorizerME myCategorizer) {
+    private void testa(List<FraseTreinamento> teste, DocumentCategorizerME myCategorizer, Set<String> classes) {
         int certos = 0;
         int errados = 0;
         
         Map<String, Map<String, Integer>> matriz = new HashMap<>();
+        for (String chute : classes) {
+            matriz.put(chute, new HashMap<>());
+            for (String real : classes) {
+                matriz.get(chute).put(real, 0);
+            }
+        }
+        
         
         for (FraseTreinamento fraseTreinamento : teste) {
             double[] outcomes = myCategorizer.categorize(fraseTreinamento.getFrase());
@@ -128,33 +141,25 @@ public class Teste {
             } else {
                 errados++;
             }
-            
-            if (matriz.get(classificado) == null) {
-                matriz.put(classificado, new HashMap<>());
-            }
-            if (matriz.get(classificado).get(esperado) == null) {
-                matriz.get(classificado).put(esperado, 0);
-            }
+            System.out.println(classificado + " " + esperado);
             int atual = matriz.get(classificado).get(esperado);
             matriz.get(classificado).put(esperado, atual + 1);
         }
-        System.out.println("Acertei " + certos + " (" + ((double)certos / (double)(certos + errados) * 100) + "%)");
-        System.out.println("Errei " + errados + " (" + ((double)errados / (double)(certos + errados) * 100) + "%)");
+        System.out.println("Acertei " + certos + "/" + (certos + errados) + " (" + ((double)certos / (double)(certos + errados) * 100) + "%)");
         
-        boolean first = true;
-        
-        for (Map.Entry<String, Map<String, Integer>> entry : matriz.entrySet()) {
-            if (first) {
-                System.out.print("\t");
-                for (Map.Entry<String, Integer> valores : entry.getValue().entrySet()) {
-                    System.out.print(valores.getKey() + "\t");
+        System.out.print("\t");
+        for (String classe : classes) {
+            System.out.print(classe + "\t");
+        }
+        System.out.println("<- Esperado");
+        for (String chute : classes) {
+            System.out.print(chute + "\t");
+            for (String real : classes) {
+                if (chute.equals(real)) {
+                    System.out.print(matriz.get(chute).get(real) + "*\t");
+                } else {
+                    System.out.print(matriz.get(chute).get(real) + "\t");
                 }
-                System.out.println("<- Esperado");
-                first = false;
-            }
-            System.out.print(entry.getKey() + "\t");
-            for (Map.Entry<String, Integer> valores : entry.getValue().entrySet()) {
-                System.out.print(valores.getValue() + "\t");
             }
             System.out.println();
         }
@@ -221,7 +226,9 @@ public class Teste {
                 if (l == null) {
                     break;
                 }
-                System.out.println(l);
+                if (l.trim().isEmpty()) {
+                    continue;
+                }
                 String[] parts = l.split("\\s+", 2);
                 treinamentos.add(new FraseTreinamento(parts[0], new SentencePreprocessor().process(parts[1])));
             }
