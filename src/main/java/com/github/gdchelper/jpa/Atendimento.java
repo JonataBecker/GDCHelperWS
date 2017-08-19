@@ -1,5 +1,6 @@
 package com.github.gdchelper.jpa;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -15,6 +16,7 @@ public class Atendimento {
     private int id;
     private String cliente;
     private String tecnico;
+    @Column(length = 60000)
     private String mensagem;
 
     public int getId() {

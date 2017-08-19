@@ -1,6 +1,8 @@
 package nicolas;
 
-import com.github.gdchelper.gdchelperws.SentencePreprocessor;
+import com.github.gdchelper.db.DataFileReader;
+import com.github.gdchelper.db.SentencePreprocessor;
+import com.github.gdchelper.jpa.Atendimento;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -20,21 +22,20 @@ import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVRecord;
 
 public class Teste {
 
     static final String DADOS = "c:\\users\\pichau\\desktop\\exportar.csv";
     static final String SENTIMENT = "D:\\Projects\\GDCHelper\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\sentiment.bin";
     static final String SENTENCER = "D:\\Projects\\GDCHelper\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\pt-sent.bin";
-    static final int LIMITE = 3000;
     static final int TAMANHO_MINIMO = 5;
     static final double TREINAMENTO = 0.8;
 
     public static void main(String[] args) throws Exception {
         Teste t = new Teste();
-        List<Atendimento> atendimentos = t.loadAtendimentos();
+        DataFileReader data = new DataFileReader();
+        
+        List<Atendimento> atendimentos = data.loadAtendimentos(DADOS);
         List<FraseTreinamento> classificados = t.loadTreinamentos();
         
         // TESTE: USA SÓ BOM E RUIM
@@ -58,7 +59,7 @@ public class Teste {
         Map<String, Integer> totais = new HashMap<>();
         
         for (Atendimento atendimento : atendimentos) {
-            List<String> sentences = t.extractSentences(atendimento.getTexto());
+            List<String> sentences = t.extractSentences(atendimento.getMensagem());
 //            System.out.println("----------------------");
             for (int i = 0; i < sentences.size(); i++) {
                 String sentence = sentences.get(i);
@@ -154,28 +155,6 @@ public class Teste {
             return true;
         }
         return false;
-    }
-
-    private List<Atendimento> loadAtendimentos() throws IOException {
-        List<Atendimento> atendimentos = new ArrayList<>();
-        int i = 0;
-        try (FileReader reader = new FileReader(DADOS)) {
-            Iterable<CSVRecord> records = CSVFormat.EXCEL.parse(reader);
-            for (CSVRecord record : records) {
-                if (i == 0) { // Pula cabeçalho
-                    i++;
-                    continue;
-                }
-                Atendimento atendimento = new Atendimento();
-                atendimento.setCliente(Integer.parseInt(record.get(21)));
-                atendimento.setTexto(record.get(3));
-                atendimentos.add(atendimento);
-                if (i++ > LIMITE) {
-                    break;
-                }
-            }
-        }
-        return atendimentos;
     }
 
     private List<FraseTreinamento> loadTreinamentos() throws IOException {
