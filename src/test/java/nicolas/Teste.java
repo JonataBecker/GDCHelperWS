@@ -29,11 +29,11 @@ import opennlp.tools.util.PlainTextByLineStream;
 
 public class Teste {
 
-    static final String DADOS = "E:\\exportar\\exportar.csv";
+    static final String DADOS = "E:\\Sistemas de Informação\\Projeto Integrador\\exportar.csv";
     
-    static final String SENTIMENT = "E:\\Documentos\\Projetos\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\sentiment.bin";
-    static final String SENTENCER = "E:\\Documentos\\Projetos\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\pt-sent.bin";
-    static final int LIMITE = 1000;
+    static final String SENTIMENT = "E:\\Projetos\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\sentiment.bin";
+    static final String SENTENCER = "E:\\Projetos\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\pt-sent.bin";
+    static final int LIMITE = 5000;
     static final int TAMANHO_MINIMO = 5;
     static final double TREINAMENTO = 0.7;
     static final int SEED = 2;
