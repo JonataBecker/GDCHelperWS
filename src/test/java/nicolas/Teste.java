@@ -1,6 +1,8 @@
 package nicolas;
 
+import com.github.gdchelper.gdchelperws.SentenceFilter;
 import com.github.gdchelper.gdchelperws.SentencePreprocessor;
+import com.github.gdchelper.jpa.Atendimento;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -12,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 import opennlp.tools.doccat.DoccatModel;
 import opennlp.tools.doccat.DocumentCategorizerME;
@@ -25,12 +28,14 @@ import org.apache.commons.csv.CSVRecord;
 
 public class Teste {
 
-    static final String DADOS = "c:\\users\\pichau\\desktop\\exportar.csv";
-    static final String SENTIMENT = "D:\\Projects\\GDCHelper\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\sentiment.bin";
-    static final String SENTENCER = "D:\\Projects\\GDCHelper\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\pt-sent.bin";
-    static final int LIMITE = 3000;
+    static final String DADOS = "E:\\exportar\\exportar.csv";
+    
+    static final String SENTIMENT = "E:\\Documentos\\Projetos\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\sentiment.bin";
+    static final String SENTENCER = "E:\\Documentos\\Projetos\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\pt-sent.bin";
+    static final int LIMITE = 1000;
     static final int TAMANHO_MINIMO = 5;
     static final double TREINAMENTO = 0.8;
+    static final int SEED = 1;
 
     public static void main(String[] args) throws Exception {
         Teste t = new Teste();
@@ -42,9 +47,8 @@ public class Teste {
         // TESTE: IGNORA NEUTRO
         classificados = classificados.stream().filter((frase) -> !frase.getCategoria().equals("neutro")).collect(Collectors.toList());
         
-        int trainingIterations = (int) (classificados.size() * TREINAMENTO);
-        List<FraseTreinamento> treinamento = classificados.subList(0, trainingIterations);
-        List<FraseTreinamento> teste = classificados.subList(trainingIterations, classificados.size());
+        List<FraseTreinamento> treinamento = classificados;
+        List<FraseTreinamento> teste = t.divide(treinamento);
         
         System.out.println(treinamento.size() + " registros de treinamento");
         System.out.println(teste.size() + " registros de teste");
@@ -52,13 +56,13 @@ public class Teste {
         int cutoff = 2;
         ObjectStream lineStream = new PlainTextByLineStream(t.getStreamFrom(treinamento), "UTF-8");
         ObjectStream sampleStream = new DocumentSampleStream(lineStream);
-        DoccatModel model = DocumentCategorizerME.train("pt", sampleStream, cutoff, trainingIterations);
+        DoccatModel model = DocumentCategorizerME.train("pt", sampleStream, cutoff, treinamento.size());
         DocumentCategorizerME myCategorizer = new DocumentCategorizerME(model);
 
         Map<String, Integer> totais = new HashMap<>();
         
         for (Atendimento atendimento : atendimentos) {
-            List<String> sentences = t.extractSentences(atendimento.getTexto());
+            List<String> sentences = t.extractSentences(atendimento.getMensagem());
 //            System.out.println("----------------------");
             for (int i = 0; i < sentences.size(); i++) {
                 String sentence = sentences.get(i);
@@ -98,6 +102,17 @@ public class Teste {
         
     }
 
+    private List<FraseTreinamento> divide(List<FraseTreinamento> treinamento) {
+        List<FraseTreinamento> teste = new ArrayList<>();
+        int registrosTeste = (int) (treinamento.size() * (1d - TREINAMENTO));
+        Random r = new Random(SEED + treinamento.size());
+        for (int i = 0; i < registrosTeste; i++) {
+            int index = r.nextInt(treinamento.size());
+            teste.add(treinamento.remove(index));
+        }
+        return teste;
+    }
+    
     private void testa(List<FraseTreinamento> teste, DocumentCategorizerME myCategorizer) {
         int certos = 0;
         int errados = 0;
@@ -127,7 +142,7 @@ public class Teste {
             line = new SentencePreprocessor().process(line);
             String[] sentences = sdetector.sentDetect(line);
             for (String sentence : sentences) {
-                if (filterSentence(sentence)) {
+                if (!new SentenceFilter().test(sentence)) {
                     break;
                 }
                 list.add(sentence);
@@ -143,19 +158,6 @@ public class Teste {
         return list;
     }
 
-    private boolean filterSentence(String sentence) {
-        if (sentence.length() < TAMANHO_MINIMO) {
-            return true;
-        }
-        if (sentence.contains("_Rech")) {
-            return true;
-        }
-        if (sentence.startsWith("To:") || sentence.startsWith("From:") || sentence.startsWith("Subject:")) {
-            return true;
-        }
-        return false;
-    }
-
     private List<Atendimento> loadAtendimentos() throws IOException {
         List<Atendimento> atendimentos = new ArrayList<>();
         int i = 0;
@@ -167,8 +169,8 @@ public class Teste {
                     continue;
                 }
                 Atendimento atendimento = new Atendimento();
-                atendimento.setCliente(Integer.parseInt(record.get(21)));
-                atendimento.setTexto(record.get(3));
+                atendimento.setCliente(record.get(21));
+                atendimento.setMensagem(record.get(3));
                 atendimentos.add(atendimento);
                 if (i++ > LIMITE) {
                     break;
@@ -187,6 +189,7 @@ public class Teste {
                 if (l == null) {
                     break;
                 }
+                System.out.println(l);
                 String[] parts = l.split("\\s+", 2);
                 treinamentos.add(new FraseTreinamento(parts[0], new SentencePreprocessor().process(parts[1])));
             }

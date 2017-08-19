@@ -25,6 +25,7 @@ public class SentencePreprocessor {
         sentence = sentence.replaceAll("\\-+>", "").trim();
         sentence = sentence.replaceAll("<.*?>:", "").trim();
         sentence = sentence.replaceAll(">+", "").trim();
+        sentence = sentence.replaceAll("^\\d+[\\)\\-:]", "").trim();
         return sentence;
     }
     
