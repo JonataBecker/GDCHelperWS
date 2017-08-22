@@ -27,17 +27,14 @@ import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 
-public class Teste {
+public class TestaClassificacaoApacheNlp {
     
-    static final int LIMITE = 5000;
-    static final int TAMANHO_MINIMO = 5;
     static final double TREINAMENTO = 0.7;
-    static final int SEED = 2;
+    static int SEED = 2;
 
     public static void main(String[] args) throws Exception {
-        Teste t = new Teste();
+        TestaClassificacaoApacheNlp t = new TestaClassificacaoApacheNlp();
         DataFileReader data = new DataFileReader();
-        
         List<Atendimento> atendimentos = data.loadAtendimentos(System.getProperty("user.home") + "/exportar.csv");
         List<FraseTreinamento> classificados = t.loadTreinamentos();
         
@@ -47,68 +44,47 @@ public class Teste {
         classificados = classificados.stream().filter((frase) -> !frase.getCategoria().equals("neutro")).collect(Collectors.toList());
         
         List<FraseTreinamento> treinamento = new ArrayList<>(classificados);
-        List<FraseTreinamento> teste = t.divide(treinamento);
+        List<FraseTreinamento> teste = t.divide(treinamento, SEED);
         Set<String> classes = new HashSet<>();
         for (FraseTreinamento classificado : classificados) {
             classes.add(classificado.getCategoria());
         }
-        
         System.out.println(treinamento.size() + " registros de treinamento");
         System.out.println(teste.size() + " registros de teste");
-        
         int cutoff = 2;
         ObjectStream lineStream = new PlainTextByLineStream(t.getStreamFrom(treinamento), "UTF-8");
         ObjectStream sampleStream = new DocumentSampleStream(lineStream);
         DoccatModel model = DocumentCategorizerME.train("pt", sampleStream, cutoff, treinamento.size());
         DocumentCategorizerME myCategorizer = new DocumentCategorizerME(model);
-
-        Map<String, Integer> totais = new HashMap<>();
         
-        for (Atendimento atendimento : atendimentos) {
-            List<String> sentences = t.extractSentences(atendimento.getMensagem());
-//            System.out.println("----------------------");
-            for (int i = 0; i < sentences.size(); i++) {
-                String sentence = sentences.get(i);
-
-                double[] outcomes = myCategorizer.categorize(sentence);
-                String category = myCategorizer.getBestCategory(outcomes);
-                int index = myCategorizer.getIndex(category);
-                double prob = outcomes[index];
-
-                if (!totais.containsKey(category)) {
-                    totais.put(category, 0);
-                }
-
-                if (prob < 0.75) {
-                    continue;
-                }
-
-                totais.put(category, totais.get(category) + 1);
-                
-                if (category.equals("0") || category.equals("1") || category.equals("neutro")) {
-                    continue;
-                }
-                
-                if (prob < 0.90) {
-                    continue;
-                }
-
-                System.out.println(i +"\t"+category +" (" + new DecimalFormat("#00.00").format(prob * 100) + "%)\t"+sentence);
-            }
-        }
+        t.testa(teste, myCategorizer, classes, true);
         
-        for (Map.Entry<String, Integer> entry : totais.entrySet()) {
-            System.out.println(entry.getKey() + "\t" + entry.getValue());
+        List<Double> pcts = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            teste = t.divide(new ArrayList<>(classificados), i);
+            pcts.add(t.testa(teste, myCategorizer, classes, false));
         }
-
-        t.testa(teste, myCategorizer, classes);
+        double menor = 9999;
+        double maior = 0;
+        double soma = 0;
+        for (Double pct : pcts) {
+            soma += pct;
+            menor = Math.min(menor, pct);
+            maior = Math.max(maior, pct);
+        }
+        System.out.println("");
+        System.out.println("Média : " + (soma / pcts.size()));
+        System.out.println("Melhor: " + maior);
+        System.out.println("Menor : " + menor);
         
     }
 
-    private List<FraseTreinamento> divide(List<FraseTreinamento> treinamento) {
+    
+    
+    private List<FraseTreinamento> divide(List<FraseTreinamento> treinamento, long seed) {
         List<FraseTreinamento> teste = new ArrayList<>();
         int registrosTeste = (int) (treinamento.size() * (1d - TREINAMENTO));
-        Random r = new Random(SEED + treinamento.size());
+        Random r = new Random(seed + treinamento.size());
         for (int i = 0; i < registrosTeste; i++) {
             int index = r.nextInt(treinamento.size());
             teste.add(treinamento.remove(index));
@@ -116,7 +92,7 @@ public class Teste {
         return teste;
     }
     
-    private void testa(List<FraseTreinamento> teste, DocumentCategorizerME myCategorizer, Set<String> classes) {
+    private double testa(List<FraseTreinamento> teste, DocumentCategorizerME myCategorizer, Set<String> classes, boolean echo) {
         int certos = 0;
         int errados = 0;
         
@@ -138,12 +114,14 @@ public class Teste {
             } else {
                 errados++;
             }
-            System.out.println(classificado + " " + esperado);
             int atual = matriz.get(classificado).get(esperado);
             matriz.get(classificado).put(esperado, atual + 1);
         }
-        System.out.println("Acertei " + certos + "/" + (certos + errados) + " (" + ((double)certos / (double)(certos + errados) * 100) + "%)");
-        
+        double pct = ((double)certos / (double)(certos + errados) * 100);
+        if (!echo) {
+            return pct;
+        }
+        System.out.println("Acertei " + certos + "/" + (certos + errados) + " (" + pct + "%)");
         System.out.print("\t");
         for (String classe : classes) {
             System.out.print(classe + "\t");
@@ -161,37 +139,9 @@ public class Teste {
             System.out.println();
         }
         System.out.println(" ^ \n | \n Classificado");
+        return pct;
     }
     
-    private List<String> extractSentences(String text) throws IOException {
-        List<String> list = new ArrayList<>();
-        // always start with a model, a model is learned from training data
-//      InputStream is = Teste.class.getResourceAsStream("/com/github/gdchelper/gdchelperws/models/pt-sent.bin");
-        InputStream is = new FileInputStream(getModel("pt-sent.bin"));
-        SentenceModel model = new SentenceModel(is);
-        SentenceDetectorME sdetector = new SentenceDetectorME(model);
-
-        String[] lines = text.split("\n");
-        for (String line : lines) {
-            line = new SentencePreprocessor().process(line);
-            String[] sentences = sdetector.sentDetect(line);
-            for (String sentence : sentences) {
-                if (!new SentenceFilter().test(sentence)) {
-                    break;
-                }
-                list.add(sentence);
-            }
-        }
-
-//        String sentences[] = sdetector.sentDetect();
-//        System.out.println("----------------------");
-//        for (int i = 0; i < sentences.length; i++) {
-//            System.out.println(i +"\t"+sentences[i].replace("\n", "\\n"));
-//        }
-//        is.close();
-        return list;
-    }
-
     private List<FraseTreinamento> loadTreinamentos() throws IOException {
         List<FraseTreinamento> treinamentos = new ArrayList<>();
         int i = 0;

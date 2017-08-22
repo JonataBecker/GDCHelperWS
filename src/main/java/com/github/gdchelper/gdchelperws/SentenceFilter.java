@@ -28,6 +28,14 @@ public class SentenceFilter implements Predicate<Atendimento> {
 //        if (sentence.contains("_Rech")) {
 //            return true;
 //        }
+        // Se é só uma palavra
+        if (sentence.indexOf(' ') < 0) {
+            return false;
+        }
+        // Se é uma tag
+        if (sentence.matches("^\\[[^\\[\\]]+\\]$")) {
+            return false;
+        }
         if (sentence.startsWith("to:") || sentence.startsWith("from:") || sentence.startsWith("subject:") || sentence.startsWith("enviada em:") || sentence.startsWith("enviada:")) {
             return false;
         }

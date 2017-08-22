@@ -4,6 +4,11 @@ import com.github.gdchelper.db.DataFileReader;
 import com.github.gdchelper.gdchelperws.SentenceFilter;
 import com.github.gdchelper.gdchelperws.SentencePreprocessor;
 import com.github.gdchelper.jpa.Atendimento;
+import com.ibm.watson.developer_cloud.natural_language_understanding.v1.NaturalLanguageUnderstanding;
+import com.ibm.watson.developer_cloud.natural_language_understanding.v1.model.AnalysisResults;
+import com.ibm.watson.developer_cloud.natural_language_understanding.v1.model.AnalyzeOptions;
+import com.ibm.watson.developer_cloud.natural_language_understanding.v1.model.Features;
+import com.ibm.watson.developer_cloud.natural_language_understanding.v1.model.SentimentOptions;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -27,18 +32,23 @@ import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 
-public class Teste {
-    
-    static final int LIMITE = 5000;
+/**
+ * Gera a base de treinamento do ApacheNLP à partir do Watson
+ * 
+ * Registros = 1263813;
+ */
+public class GeradorBaseTreinamento {
+
+    static final int START = 1263033;
+//    static final int END = 1263813; // Último registro
+    static final int END = 1263182;
     static final int TAMANHO_MINIMO = 5;
     static final double TREINAMENTO = 0.7;
     static final int SEED = 2;
 
     public static void main(String[] args) throws Exception {
-        Teste t = new Teste();
-        DataFileReader data = new DataFileReader();
-        
-        List<Atendimento> atendimentos = data.loadAtendimentos(System.getProperty("user.home") + "/exportar.csv");
+        GeradorBaseTreinamento t = new GeradorBaseTreinamento();
+        List<Atendimento> atendimentos = new DataFileReader(START, END).loadAtendimentos(System.getProperty("user.home") + "/exportar.csv");
         List<FraseTreinamento> classificados = t.loadTreinamentos();
         
         // TESTE: USA SÓ BOM E RUIM
@@ -55,6 +65,19 @@ public class Teste {
         
         System.out.println(treinamento.size() + " registros de treinamento");
         System.out.println(teste.size() + " registros de teste");
+        
+        NaturalLanguageUnderstanding service = new NaturalLanguageUnderstanding(
+                NaturalLanguageUnderstanding.VERSION_DATE_2017_02_27,
+                "35ab4377-2c9a-448c-83ab-d4583503bb6f",
+                "NOvvgbAGbAT3"
+        );
+
+
+
+        SentimentOptions sentiment = new SentimentOptions.Builder().build();
+        Features features = new Features.Builder().sentiment(sentiment).build();
+
+
         
         int cutoff = 2;
         ObjectStream lineStream = new PlainTextByLineStream(t.getStreamFrom(treinamento), "UTF-8");
@@ -74,26 +97,49 @@ public class Teste {
                 String category = myCategorizer.getBestCategory(outcomes);
                 int index = myCategorizer.getIndex(category);
                 double prob = outcomes[index];
-
+                
                 if (!totais.containsKey(category)) {
                     totais.put(category, 0);
                 }
 
-                if (prob < 0.75) {
-                    continue;
-                }
+//                if (prob < 0.75) {
+//                    continue;
+//                }
 
                 totais.put(category, totais.get(category) + 1);
-                
-                if (category.equals("0") || category.equals("1") || category.equals("neutro")) {
-                    continue;
-                }
-                
-                if (prob < 0.90) {
-                    continue;
+//                
+//                if (category.equals("0") || category.equals("1") || category.equals("neutro")) {
+//                    continue;
+//                }
+//                
+//                if (prob < 0.90) {
+//                    continue;
+//                }
+                double score = 0;
+                try {
+                    AnalyzeOptions parameters = new AnalyzeOptions.Builder().text(sentence).features(features).build();
+                    AnalysisResults response = service.analyze(parameters).execute();
+                    score = response.getSentiment().getDocument().getScore();
+                } catch (Exception e) {
+                    System.out.println("erro: " + sentence);
                 }
 
-                System.out.println(i +"\t"+category +" (" + new DecimalFormat("#00.00").format(prob * 100) + "%)\t"+sentence);
+                String categoryWatson = "neutro";
+                if (score > 0.25) {
+                    categoryWatson = "bom";
+                }
+                if (score > 0.75) {
+                    categoryWatson = "mbom";
+                }
+                if (score < -0.25) {
+                    categoryWatson = "ruim";
+                }
+                if (score < -0.75) {
+                    categoryWatson = "mruim";
+                }
+//                System.out.println(response);
+                
+                System.out.println(categoryWatson+"\t" + score + "\t"+category +" (" + new DecimalFormat("#00.00").format(prob * 100) + "%)\t"+sentence);
             }
         }
         
@@ -138,7 +184,6 @@ public class Teste {
             } else {
                 errados++;
             }
-            System.out.println(classificado + " " + esperado);
             int atual = matriz.get(classificado).get(esperado);
             matriz.get(classificado).put(esperado, atual + 1);
         }
@@ -165,8 +210,6 @@ public class Teste {
     
     private List<String> extractSentences(String text) throws IOException {
         List<String> list = new ArrayList<>();
-        // always start with a model, a model is learned from training data
-//      InputStream is = Teste.class.getResourceAsStream("/com/github/gdchelper/gdchelperws/models/pt-sent.bin");
         InputStream is = new FileInputStream(getModel("pt-sent.bin"));
         SentenceModel model = new SentenceModel(is);
         SentenceDetectorME sdetector = new SentenceDetectorME(model);
@@ -194,7 +237,6 @@ public class Teste {
 
     private List<FraseTreinamento> loadTreinamentos() throws IOException {
         List<FraseTreinamento> treinamentos = new ArrayList<>();
-        int i = 0;
         try (BufferedReader reader = new BufferedReader(new FileReader(getModel("sentiment.bin")))) {
             while (true) {
                 String l = reader.readLine();
@@ -211,12 +253,10 @@ public class Teste {
         return treinamentos;
     }
     
-    
     private String getModel(String name) {
         String path = GeradorBaseTreinamento.class.getProtectionDomain().getCodeSource().getLocation().getPath().replace("target/test-classes/", "");
         return path + "src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\" + name;
     }
-    
     
     private InputStream getStreamFrom(List<FraseTreinamento> treinamento) {
         StringBuilder buffer = new StringBuilder();

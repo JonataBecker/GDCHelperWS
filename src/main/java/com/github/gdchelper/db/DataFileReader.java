@@ -14,15 +14,25 @@ import org.apache.commons.csv.CSVRecord;
  */
 public class DataFileReader {
     
-    public static final int LIMITE = 3000;
+    private final int start;
+    private final int end;
 
+    public DataFileReader() {
+        this(0, 3000);
+    }
+    
+    public DataFileReader(int start, int end) {
+        this.start = start;
+        this.end = end;
+    }
+    
     public List<Atendimento> loadAtendimentos(String file) throws IOException {
         List<Atendimento> atendimentos = new ArrayList<>();
         int i = 0;
         try (FileReader reader = new FileReader(file)) {
             Iterable<CSVRecord> records = CSVFormat.EXCEL.parse(reader);
             for (CSVRecord record : records) {
-                if (i == 0) { // Pula cabeçalho
+                if (i < start + 1) { // Pula cabeçalho e linhas iniciais
                     i++;
                     continue;
                 }
@@ -31,7 +41,7 @@ public class DataFileReader {
                 atendimento.setTecnico(record.get(4));
                 atendimento.setMensagem(record.get(3));
                 atendimentos.add(atendimento);
-                if (i++ > LIMITE) {
+                if (i++ > end) {
                     break;
                 }
             }
