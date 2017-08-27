@@ -1,6 +1,8 @@
 package nicolas;
 
+import com.github.gdchelper.gdchelperws.FraseTreinamento;
 import com.github.gdchelper.db.DataFileReader;
+import com.github.gdchelper.gdchelperws.ApacheCategorizer;
 import com.github.gdchelper.gdchelperws.SentenceFilter;
 import com.github.gdchelper.gdchelperws.SentencePreprocessor;
 import com.github.gdchelper.jpa.Atendimento;
@@ -19,6 +21,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
+import opennlp.tools.doccat.DoccatFactory;
 import opennlp.tools.doccat.DoccatModel;
 import opennlp.tools.doccat.DocumentCategorizerME;
 import opennlp.tools.doccat.DocumentSampleStream;
@@ -26,6 +29,7 @@ import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
+import opennlp.tools.util.TrainingParameters;
 
 public class Teste {
     
@@ -57,9 +61,12 @@ public class Teste {
         System.out.println(teste.size() + " registros de teste");
         
         int cutoff = 2;
-        ObjectStream lineStream = new PlainTextByLineStream(t.getStreamFrom(treinamento), "UTF-8");
+        ObjectStream lineStream = new PlainTextByLineStream(() -> t.getStreamFrom(treinamento), "UTF-8");
         ObjectStream sampleStream = new DocumentSampleStream(lineStream);
-        DoccatModel model = DocumentCategorizerME.train("pt", sampleStream, cutoff, treinamento.size());
+        TrainingParameters params = new TrainingParameters();
+        params.put(TrainingParameters.CUTOFF_PARAM, 2);
+        params.put(TrainingParameters.ITERATIONS_PARAM, treinamento.size());
+        DoccatModel model = DocumentCategorizerME.train("pt", sampleStream, params, new DoccatFactory());
         DocumentCategorizerME myCategorizer = new DocumentCategorizerME(model);
 
         Map<String, Integer> totais = new HashMap<>();
@@ -70,7 +77,7 @@ public class Teste {
             for (int i = 0; i < sentences.size(); i++) {
                 String sentence = sentences.get(i);
 
-                double[] outcomes = myCategorizer.categorize(sentence);
+                double[] outcomes = myCategorizer.categorize(new String[] {sentence});
                 String category = myCategorizer.getBestCategory(outcomes);
                 int index = myCategorizer.getIndex(category);
                 double prob = outcomes[index];
@@ -130,7 +137,7 @@ public class Teste {
         
         
         for (FraseTreinamento fraseTreinamento : teste) {
-            double[] outcomes = myCategorizer.categorize(fraseTreinamento.getFrase());
+            double[] outcomes = myCategorizer.categorize(new String[] {fraseTreinamento.getFrase()});
             String classificado = myCategorizer.getBestCategory(outcomes);
             String esperado = fraseTreinamento.getCategoria();
             if (classificado.equals(esperado)) {

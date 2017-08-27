@@ -1,11 +1,12 @@
 package nicolas;
 
+import com.github.gdchelper.gdchelperws.ApacheCategorizer;
+import com.github.gdchelper.gdchelperws.CategorizerResult;
+import com.github.gdchelper.gdchelperws.FraseTreinamento;
 import com.github.gdchelper.gdchelperws.SentencePreprocessor;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,22 +15,17 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
-import opennlp.tools.doccat.DoccatModel;
-import opennlp.tools.doccat.DocumentCategorizerME;
-import opennlp.tools.doccat.DocumentSampleStream;
-import opennlp.tools.util.ObjectStream;
-import opennlp.tools.util.PlainTextByLineStream;
 
 public class TestaClassificacaoApacheNlp {
     
     static final double TREINAMENTO = 0.8;
-    static final int SEED = 1;
+    static final int SEED = 5;
 
     public static void main(String[] args) throws Exception {
         TestaClassificacaoApacheNlp t = new TestaClassificacaoApacheNlp();
         t.classificaTesta(SEED, true);
         List<Double> pcts = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 100; i++) {
             pcts.add(t.classificaTesta(i, false));
         }
         double menor = 9999;
@@ -66,13 +62,9 @@ public class TestaClassificacaoApacheNlp {
             System.out.println(treinamento.size() + " registros de treinamento");
             System.out.println(teste.size() + " registros de teste");
         }
-        int cutoff = 2;
-        ObjectStream lineStream = new PlainTextByLineStream(getStreamFrom(treinamento), "UTF-8");
-        ObjectStream sampleStream = new DocumentSampleStream(lineStream);
-        DoccatModel model = DocumentCategorizerME.train("pt", sampleStream, cutoff, treinamento.size());
-        DocumentCategorizerME myCategorizer = new DocumentCategorizerME(model);
-        
-        return testa(teste, myCategorizer, classes, exibe);
+
+        ApacheCategorizer categorizer = ApacheCategorizer.fromTraining(treinamento);
+        return testa(teste, categorizer, classes, exibe);
         
     }
     
@@ -87,7 +79,7 @@ public class TestaClassificacaoApacheNlp {
         return teste;
     }
     
-    private double testa(List<FraseTreinamento> teste, DocumentCategorizerME myCategorizer, Set<String> classes, boolean echo) {
+    private double testa(List<FraseTreinamento> teste, ApacheCategorizer categorizer, Set<String> classes, boolean echo) {
         int certos = 0;
         int errados = 0;
         
@@ -101,8 +93,8 @@ public class TestaClassificacaoApacheNlp {
         
         
         for (FraseTreinamento fraseTreinamento : teste) {
-            double[] outcomes = myCategorizer.categorize(fraseTreinamento.getFrase());
-            String classificado = myCategorizer.getBestCategory(outcomes);
+            CategorizerResult outcomes = categorizer.categorize(fraseTreinamento.getFrase());
+            String classificado = outcomes.getBest();
             String esperado = fraseTreinamento.getCategoria();
             if (classificado.equals(esperado)) {
                 certos++;
@@ -160,18 +152,6 @@ public class TestaClassificacaoApacheNlp {
     private String getModel(String name) {
         String path = GeradorBaseTreinamento.class.getProtectionDomain().getCodeSource().getLocation().getPath().replace("target/test-classes/", "");
         return path + "src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\" + name;
-    }
-    
-    
-    private InputStream getStreamFrom(List<FraseTreinamento> treinamento) {
-        StringBuilder buffer = new StringBuilder();
-        for (FraseTreinamento fraseTreinamento : treinamento) {
-            buffer.append(fraseTreinamento.getCategoria());
-            buffer.append('\t');
-            buffer.append(fraseTreinamento.getFrase());
-            buffer.append('\n');
-        }
-        return new ByteArrayInputStream(buffer.toString().getBytes());
     }
 
 }

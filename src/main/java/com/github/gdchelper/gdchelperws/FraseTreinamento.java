@@ -1,4 +1,4 @@
-package nicolas;
+package com.github.gdchelper.gdchelperws;
 
 public class FraseTreinamento {
     

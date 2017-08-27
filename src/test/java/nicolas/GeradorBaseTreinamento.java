@@ -1,6 +1,9 @@
 package nicolas;
 
+import com.github.gdchelper.gdchelperws.FraseTreinamento;
 import com.github.gdchelper.db.DataFileReader;
+import com.github.gdchelper.gdchelperws.ApacheCategorizer;
+import com.github.gdchelper.gdchelperws.CategorizerResult;
 import com.github.gdchelper.gdchelperws.SentenceFilter;
 import com.github.gdchelper.gdchelperws.SentencePreprocessor;
 import com.github.gdchelper.jpa.Atendimento;
@@ -24,6 +27,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
+import opennlp.tools.doccat.DoccatFactory;
 import opennlp.tools.doccat.DoccatModel;
 import opennlp.tools.doccat.DocumentCategorizerME;
 import opennlp.tools.doccat.DocumentSampleStream;
@@ -31,6 +35,7 @@ import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
+import opennlp.tools.util.TrainingParameters;
 
 /**
  * Gera a base de treinamento do ApacheNLP à partir do Watson
@@ -77,14 +82,8 @@ public class GeradorBaseTreinamento {
         SentimentOptions sentiment = new SentimentOptions.Builder().build();
         Features features = new Features.Builder().sentiment(sentiment).build();
 
-
+        ApacheCategorizer categorizer = ApacheCategorizer.fromTraining(treinamento);
         
-        int cutoff = 2;
-        ObjectStream lineStream = new PlainTextByLineStream(t.getStreamFrom(treinamento), "UTF-8");
-        ObjectStream sampleStream = new DocumentSampleStream(lineStream);
-        DoccatModel model = DocumentCategorizerME.train("pt", sampleStream, cutoff, treinamento.size());
-        DocumentCategorizerME myCategorizer = new DocumentCategorizerME(model);
-
         Map<String, Integer> totais = new HashMap<>();
         
         for (Atendimento atendimento : atendimentos) {
@@ -93,10 +92,8 @@ public class GeradorBaseTreinamento {
             for (int i = 0; i < sentences.size(); i++) {
                 String sentence = sentences.get(i);
 
-                double[] outcomes = myCategorizer.categorize(sentence);
-                String category = myCategorizer.getBestCategory(outcomes);
-                int index = myCategorizer.getIndex(category);
-                double prob = outcomes[index];
+                CategorizerResult outcomes = categorizer.categorize(sentence);
+                String category = outcomes.getBest();
                 
                 if (!totais.containsKey(category)) {
                     totais.put(category, 0);
@@ -139,7 +136,7 @@ public class GeradorBaseTreinamento {
                 }
 //                System.out.println(response);
                 
-                System.out.println(categoryWatson+"\t" + score + "\t"+category +" (" + new DecimalFormat("#00.00").format(prob * 100) + "%)\t"+sentence);
+                System.out.println(categoryWatson+"\t" + score + "\t"+category +"\t"+sentence);
             }
         }
         
@@ -147,7 +144,6 @@ public class GeradorBaseTreinamento {
             System.out.println(entry.getKey() + "\t" + entry.getValue());
         }
 
-        t.testa(teste, myCategorizer, classes);
         
     }
 
@@ -160,52 +156,6 @@ public class GeradorBaseTreinamento {
             teste.add(treinamento.remove(index));
         }
         return teste;
-    }
-    
-    private void testa(List<FraseTreinamento> teste, DocumentCategorizerME myCategorizer, Set<String> classes) {
-        int certos = 0;
-        int errados = 0;
-        
-        Map<String, Map<String, Integer>> matriz = new HashMap<>();
-        for (String chute : classes) {
-            matriz.put(chute, new HashMap<>());
-            for (String real : classes) {
-                matriz.get(chute).put(real, 0);
-            }
-        }
-        
-        
-        for (FraseTreinamento fraseTreinamento : teste) {
-            double[] outcomes = myCategorizer.categorize(fraseTreinamento.getFrase());
-            String classificado = myCategorizer.getBestCategory(outcomes);
-            String esperado = fraseTreinamento.getCategoria();
-            if (classificado.equals(esperado)) {
-                certos++;
-            } else {
-                errados++;
-            }
-            int atual = matriz.get(classificado).get(esperado);
-            matriz.get(classificado).put(esperado, atual + 1);
-        }
-        System.out.println("Acertei " + certos + "/" + (certos + errados) + " (" + ((double)certos / (double)(certos + errados) * 100) + "%)");
-        
-        System.out.print("\t");
-        for (String classe : classes) {
-            System.out.print(classe + "\t");
-        }
-        System.out.println("<- Esperado");
-        for (String chute : classes) {
-            System.out.print(chute + "\t");
-            for (String real : classes) {
-                if (chute.equals(real)) {
-                    System.out.print(matriz.get(chute).get(real) + "*\t");
-                } else {
-                    System.out.print(matriz.get(chute).get(real) + "\t");
-                }
-            }
-            System.out.println();
-        }
-        System.out.println(" ^ \n | \n Classificado");
     }
     
     private List<String> extractSentences(String text) throws IOException {
