@@ -1,6 +1,5 @@
 package nicolas;
 
-import com.github.gdchelper.db.DataFileReader;
 import com.github.gdchelper.gdchelperws.SentencePreprocessor;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -24,37 +23,14 @@ import opennlp.tools.util.PlainTextByLineStream;
 public class TestaClassificacaoApacheNlp {
     
     static final double TREINAMENTO = 0.8;
+    static final int SEED = 1;
 
     public static void main(String[] args) throws Exception {
         TestaClassificacaoApacheNlp t = new TestaClassificacaoApacheNlp();
-        DataFileReader data = new DataFileReader();
-        List<FraseTreinamento> classificados = t.loadTreinamentos();
-        
-        // TESTE: USA SÓ BOM E RUIM
-        classificados = classificados.stream().map((frase) -> new FraseTreinamento(frase.getCategoria().replaceFirst("^m", ""), frase.getFrase())).collect(Collectors.toList());
-        // TESTE: IGNORA NEUTRO
-        classificados = classificados.stream().filter((frase) -> !frase.getCategoria().equals("neutro")).collect(Collectors.toList());
-        
-        List<FraseTreinamento> treinamento = new ArrayList<>(classificados);
-        List<FraseTreinamento> teste = t.divide(treinamento, 1);
-        Set<String> classes = new HashSet<>();
-        for (FraseTreinamento classificado : classificados) {
-            classes.add(classificado.getCategoria());
-        }
-        System.out.println(treinamento.size() + " registros de treinamento");
-        System.out.println(teste.size() + " registros de teste");
-        int cutoff = 2;
-        ObjectStream lineStream = new PlainTextByLineStream(t.getStreamFrom(treinamento), "UTF-8");
-        ObjectStream sampleStream = new DocumentSampleStream(lineStream);
-        DoccatModel model = DocumentCategorizerME.train("pt", sampleStream, cutoff, treinamento.size());
-        DocumentCategorizerME myCategorizer = new DocumentCategorizerME(model);
-        
-        t.testa(teste, myCategorizer, classes, true);
-        
+        t.classificaTesta(SEED, true);
         List<Double> pcts = new ArrayList<>();
-        for (int i = 0; i < 1000; i++) {
-            teste = t.divide(new ArrayList<>(classificados), i);
-            pcts.add(t.testa(teste, myCategorizer, classes, false));
+        for (int i = 0; i < 20; i++) {
+            pcts.add(t.classificaTesta(i, false));
         }
         double menor = 9999;
         double maior = 0;
@@ -70,8 +46,35 @@ public class TestaClassificacaoApacheNlp {
         System.out.println("Menor : " + menor);
         
     }
-
     
+    private double classificaTesta(long seed, boolean exibe) throws IOException {
+        List<FraseTreinamento> classificados = loadTreinamentos();
+        
+        // TESTE: USA SÓ BOM E RUIM
+        classificados = classificados.stream().map((frase) -> new FraseTreinamento(frase.getCategoria().replaceFirst("^m", ""), frase.getFrase())).collect(Collectors.toList());
+        // TESTE: IGNORA NEUTRO
+        classificados = classificados.stream().filter((frase) -> !frase.getCategoria().equals("neutro")).collect(Collectors.toList());
+        classificados = classificados.stream().filter((frase) -> !frase.getCategoria().equals("pergu")).collect(Collectors.toList());
+        
+        List<FraseTreinamento> treinamento = new ArrayList<>(classificados);
+        List<FraseTreinamento> teste = divide(treinamento, seed);
+        Set<String> classes = new HashSet<>();
+        for (FraseTreinamento classificado : classificados) {
+            classes.add(classificado.getCategoria());
+        }
+        if (exibe) {
+            System.out.println(treinamento.size() + " registros de treinamento");
+            System.out.println(teste.size() + " registros de teste");
+        }
+        int cutoff = 2;
+        ObjectStream lineStream = new PlainTextByLineStream(getStreamFrom(treinamento), "UTF-8");
+        ObjectStream sampleStream = new DocumentSampleStream(lineStream);
+        DoccatModel model = DocumentCategorizerME.train("pt", sampleStream, cutoff, treinamento.size());
+        DocumentCategorizerME myCategorizer = new DocumentCategorizerME(model);
+        
+        return testa(teste, myCategorizer, classes, exibe);
+        
+    }
     
     private List<FraseTreinamento> divide(List<FraseTreinamento> treinamento, long seed) {
         List<FraseTreinamento> teste = new ArrayList<>();

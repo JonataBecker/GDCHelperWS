@@ -36,7 +36,14 @@ public class SentenceFilter implements Predicate<Atendimento> {
         if (sentence.matches("^\\[[^\\[\\]]+\\]$")) {
             return false;
         }
-        if (sentence.startsWith("to:") || sentence.startsWith("from:") || sentence.startsWith("subject:") || sentence.startsWith("enviada em:") || sentence.startsWith("enviada:")) {
+        // Tag de e-mail
+        if (sentence.equals("-------- mensagem encaminhada --------")) {
+            return false;
+        }
+        // Tags de email
+        if (sentence.startsWith("to:") || sentence.startsWith("from:") || sentence.startsWith("subject:") || sentence.startsWith("enviada em:") || 
+                sentence.startsWith("enviada:") || sentence.startsWith("data:") || sentence.startsWith("para:") || sentence.startsWith("de:") ||
+                sentence.startsWith("cc:") || sentence.startsWith("assunto:")) {
             return false;
         }
         return true;
