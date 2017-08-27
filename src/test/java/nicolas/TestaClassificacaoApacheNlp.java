@@ -1,16 +1,12 @@
 package nicolas;
 
 import com.github.gdchelper.db.DataFileReader;
-import com.github.gdchelper.gdchelperws.SentenceFilter;
 import com.github.gdchelper.gdchelperws.SentencePreprocessor;
-import com.github.gdchelper.jpa.Atendimento;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,20 +18,16 @@ import java.util.stream.Collectors;
 import opennlp.tools.doccat.DoccatModel;
 import opennlp.tools.doccat.DocumentCategorizerME;
 import opennlp.tools.doccat.DocumentSampleStream;
-import opennlp.tools.sentdetect.SentenceDetectorME;
-import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 
 public class TestaClassificacaoApacheNlp {
     
-    static final double TREINAMENTO = 0.7;
-    static int SEED = 2;
+    static final double TREINAMENTO = 0.8;
 
     public static void main(String[] args) throws Exception {
         TestaClassificacaoApacheNlp t = new TestaClassificacaoApacheNlp();
         DataFileReader data = new DataFileReader();
-        List<Atendimento> atendimentos = data.loadAtendimentos(System.getProperty("user.home") + "/exportar.csv");
         List<FraseTreinamento> classificados = t.loadTreinamentos();
         
         // TESTE: USA SÓ BOM E RUIM
@@ -44,7 +36,7 @@ public class TestaClassificacaoApacheNlp {
         classificados = classificados.stream().filter((frase) -> !frase.getCategoria().equals("neutro")).collect(Collectors.toList());
         
         List<FraseTreinamento> treinamento = new ArrayList<>(classificados);
-        List<FraseTreinamento> teste = t.divide(treinamento, SEED);
+        List<FraseTreinamento> teste = t.divide(treinamento, 1);
         Set<String> classes = new HashSet<>();
         for (FraseTreinamento classificado : classificados) {
             classes.add(classificado.getCategoria());
@@ -60,7 +52,7 @@ public class TestaClassificacaoApacheNlp {
         t.testa(teste, myCategorizer, classes, true);
         
         List<Double> pcts = new ArrayList<>();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1000; i++) {
             teste = t.divide(new ArrayList<>(classificados), i);
             pcts.add(t.testa(teste, myCategorizer, classes, false));
         }
