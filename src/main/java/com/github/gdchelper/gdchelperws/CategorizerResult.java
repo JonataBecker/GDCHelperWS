@@ -29,4 +29,8 @@ public class CategorizerResult {
         return best;
     }
     
+    public double get(String clazz) {
+        return classes.get(clazz);
+    }
+    
 }
