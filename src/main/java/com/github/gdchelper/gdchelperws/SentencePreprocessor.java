@@ -6,12 +6,12 @@ import java.text.Normalizer;
  * Classe para ajustar as frases
  */
 public class SentencePreprocessor {
-    
+
     /**
      * Processa a frase
-     * 
+     *
      * @param sentence
-     * @return 
+     * @return
      */
     public String process(String sentence) {
         sentence = sentence.toLowerCase().trim();
@@ -28,5 +28,5 @@ public class SentencePreprocessor {
         sentence = sentence.replaceAll("^\\d+[\\)\\-:]", "").trim();
         return sentence;
     }
-    
+
 }
