@@ -76,9 +76,6 @@ public class GeradorBaseTreinamento {
                 "35ab4377-2c9a-448c-83ab-d4583503bb6f",
                 "NOvvgbAGbAT3"
         );
-
-
-
         SentimentOptions sentiment = new SentimentOptions.Builder().build();
         Features features = new Features.Builder().sentiment(sentiment).build();
 
