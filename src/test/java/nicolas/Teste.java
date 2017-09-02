@@ -34,7 +34,7 @@ public class Teste {
     
     static final String SENTIMENT = "E:\\Projetos\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\sentiment.bin";
     static final String SENTENCER = "E:\\Projetos\\GDCHelperWS\\src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\pt-sent.bin";
-    static final int LIMITE = 5000;
+    static final int LIMITE = 7000;
     static final int TAMANHO_MINIMO = 5;
     static final double TREINAMENTO = 0.7;
     static final int SEED = 2;
@@ -201,7 +201,7 @@ public class Teste {
         try (FileReader reader = new FileReader(DADOS)) {
             Iterable<CSVRecord> records = CSVFormat.EXCEL.parse(reader);
             for (CSVRecord record : records) {
-                if (i == 0 || i < 3000) { // Pula cabeçalho
+                if (i == 0 || i < 5000) { // Pula cabeçalho
                     i++;
                     continue;
                 }
