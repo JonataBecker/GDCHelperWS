@@ -27,9 +27,13 @@ public class DataFileReader {
     }
     
     public List<Atendimento> loadAtendimentos(String file) throws IOException {
+        return loadAtendimentos(System.getProperty("user.home"), file);
+    }
+    
+    public List<Atendimento> loadAtendimentos(String path, String file) throws IOException {
         List<Atendimento> atendimentos = new ArrayList<>();
         int i = 0;
-        try (FileReader reader = new FileReader(file)) {
+        try (FileReader reader = new FileReader(path + "/" + file)) {
             Iterable<CSVRecord> records = CSVFormat.EXCEL.parse(reader);
             for (CSVRecord record : records) {
                 if (i < start + 1) { // Pula cabeçalho e linhas iniciais

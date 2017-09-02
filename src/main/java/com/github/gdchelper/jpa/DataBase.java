@@ -25,7 +25,7 @@ public class DataBase {
     public void create() throws Exception {
         EntityManager em = persistenceManager.create();
         DataFileReader reader = new DataFileReader();
-        List<Atendimento> atendimentos = reader.loadAtendimentos("/gdchelper/exportar.csv");
+        List<Atendimento> atendimentos = reader.loadAtendimentos("exportar.csv");
         try {
             em.getTransaction().begin();
             atendimentos.forEach((at) -> {

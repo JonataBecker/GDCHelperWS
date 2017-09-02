@@ -36,6 +36,7 @@ public class DataBaseController {
             dataBase.create();
             result.use(Results.status()).accepted();
         } catch (Exception e) {
+            e.printStackTrace();
             result.use(Results.http()).body(e.getMessage()).setStatusCode(501);
         }
     }
