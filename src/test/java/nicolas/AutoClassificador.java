@@ -7,19 +7,28 @@ import com.github.gdchelper.gdchelperws.CategorizerResult;
 import com.github.gdchelper.gdchelperws.SentenceFilter;
 import com.github.gdchelper.gdchelperws.SentencePreprocessor;
 import com.github.gdchelper.jpa.Atendimento;
+import com.ibm.watson.developer_cloud.natural_language_understanding.v1.NaturalLanguageUnderstanding;
+import com.ibm.watson.developer_cloud.natural_language_understanding.v1.model.AnalysisResults;
+import com.ibm.watson.developer_cloud.natural_language_understanding.v1.model.AnalyzeOptions;
+import com.ibm.watson.developer_cloud.natural_language_understanding.v1.model.Features;
+import com.ibm.watson.developer_cloud.natural_language_understanding.v1.model.SentimentOptions;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+import opennlp.tools.doccat.DoccatFactory;
+import opennlp.tools.doccat.DoccatModel;
+import opennlp.tools.doccat.DocumentCategorizerME;
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 
@@ -30,9 +39,9 @@ import opennlp.tools.sentdetect.SentenceModel;
  */
 public class AutoClassificador {
 
-    static final int START = 205000;
+    static final int START = 206000;
 //    static final int END = 1263813; // Último registro
-    static final int END = 206000;
+    static final int END = 206500;
     static final int TAMANHO_MINIMO = 5;
     static final double TREINAMENTO = 0.7;
     static final int SEED = 2;
@@ -54,6 +63,15 @@ public class AutoClassificador {
         double base = testador.classificaTestaVariosComMedia(treinamento);
         System.out.println("base: " + base);
         
+        NaturalLanguageUnderstanding service = new NaturalLanguageUnderstanding(
+                NaturalLanguageUnderstanding.VERSION_DATE_2017_02_27,
+                "35ab4377-2c9a-448c-83ab-d4583503bb6f",
+                "NOvvgbAGbAT3"
+        );
+        SentimentOptions sentiment = new SentimentOptions.Builder().build();
+        Features features = new Features.Builder().sentiment(sentiment).build();
+        
+        
         DecimalFormat df = new DecimalFormat("#0.00");
         
         for (Atendimento atendimento : atendimentos) {
@@ -65,7 +83,24 @@ public class AutoClassificador {
                 double scoreBom = outcomes.get("bom");
                 double scoreRuim = outcomes.get("ruim");
                 double score = scoreBom - scoreRuim;
+                double scoreWatson = 0;
                         
+                
+                try {
+                    PrintStream original = System.out;
+                    System.setOut(new PrintStream(new ByteArrayOutputStream()));
+                    AnalyzeOptions parameters = new AnalyzeOptions.Builder().text(sentence).features(features).build();
+                    AnalysisResults response = service.analyze(parameters).execute();
+                    scoreWatson = response.getSentiment().getDocument().getScore();
+                    System.setOut(original);
+                } catch (Exception e) {
+//                    System.out.println("erro: " + sentence);
+                }
+
+                if (Math.abs(scoreWatson - score) > 0.25) {
+                    continue;
+                }
+                
                 if (score > -0.75 && score < 0.75) {
                     continue;   
                 }
@@ -76,28 +111,29 @@ public class AutoClassificador {
                     classe = "bom";
                 }
                 
+                
                 treinamento.add(new FraseTreinamento(classe, sentence));
-                System.out.println("tentando...");
-                double newBase = testador.classificaTestaVariosComMedia(treinamento);
-                if (newBase > base || base - newBase > 5) {
-                    if (newBase > base) {
-                        base = newBase;
-                        System.out.println("aumentei pra " + newBase);
-                    } else {
-                        base += (newBase - base) * 0.01;
-                        System.out.println("baixei pouco: " + newBase + " " + (newBase - base));
-                    }
-                    
+//                System.out.println("tentando...");
+//                double newBase = testador.classificaTestaVariosComMedia(treinamento);
+//                if (newBase > base || base - newBase > 5) {
+//                    if (newBase > base) {
+//                        base = newBase;
+//                        System.out.println("aumentei pra " + newBase);
+//                    } else {
+//                        base += (newBase - base) * 0.01;
+//                        System.out.println("baixei pouco: " + newBase + " " + (newBase - base));
+//                    }
+//                    
                     BufferedWriter writer = new BufferedWriter(new FileWriter(System.getProperty("user.home") + "\\novo_modelo.bin"));
                     for (FraseTreinamento fraseTreinamento : treinamento) {
                         writer.write(fraseTreinamento.getCategoria() + "\t" + fraseTreinamento.getFrase() + "\n");
                     }
                     writer.close();
-
-                    
-                } else {
-                    treinamento.remove(treinamento.size() - 1);
-                }
+//
+//                    
+//                } else {
+//                    treinamento.remove(treinamento.size() - 1);
+//                }
 //                System.out.println(df.format(score) + "\t" + df.format(scoreBom) + "\t" + df.format(scoreRuim) + "\t" + sentence);
             }
         }
@@ -165,17 +201,6 @@ public class AutoClassificador {
     private String getModel(String name) {
         String path = AutoClassificador.class.getProtectionDomain().getCodeSource().getLocation().getPath().replace("target/test-classes/", "");
         return path + "src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\" + name;
-    }
-    
-    private InputStream getStreamFrom(List<FraseTreinamento> treinamento) {
-        StringBuilder buffer = new StringBuilder();
-        for (FraseTreinamento fraseTreinamento : treinamento) {
-            buffer.append(fraseTreinamento.getCategoria());
-            buffer.append('\t');
-            buffer.append(fraseTreinamento.getFrase());
-            buffer.append('\n');
-        }
-        return new ByteArrayInputStream(buffer.toString().getBytes());
     }
 
 }
