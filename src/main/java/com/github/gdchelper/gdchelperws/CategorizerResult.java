@@ -29,4 +29,14 @@ public class CategorizerResult {
         return best;
     }
     
+    /**
+     * Retorna a confiança na categoria
+     * 
+     * @param category
+     * @return double
+     */
+    public double getTrust(String category) {
+        return classes.get(category);
+    }
+    
 }

@@ -96,6 +96,11 @@ public class TestaClassificacaoApacheNlp {
             CategorizerResult outcomes = categorizer.categorize(fraseTreinamento.getFrase());
             String classificado = outcomes.getBest();
             String esperado = fraseTreinamento.getCategoria();
+            
+//            if (outcomes.getTrust(classificado) < 0.5) {
+//                continue;
+//            }
+            
             if (classificado.equals(esperado)) {
                 certos++;
             } else {

@@ -43,7 +43,7 @@ public class SentenceFilter implements Predicate<Atendimento> {
         // Tags de email
         if (sentence.startsWith("to:") || sentence.startsWith("from:") || sentence.startsWith("subject:") || sentence.startsWith("enviada em:") || 
                 sentence.startsWith("enviada:") || sentence.startsWith("data:") || sentence.startsWith("para:") || sentence.startsWith("de:") ||
-                sentence.startsWith("cc:") || sentence.startsWith("assunto:")) {
+                sentence.startsWith("cc:") || sentence.startsWith("assunto:") || sentence.startsWith("sent:")) {
             return false;
         }
         return true;

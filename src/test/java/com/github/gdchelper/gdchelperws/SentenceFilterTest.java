@@ -25,6 +25,8 @@ public class SentenceFilterTest {
         assertFalse(filter.test(new Atendimento("para: lucas eduardo machado - rech informatica")));
         assertFalse(filter.test(new Atendimento("cc: 'diogo@laboratoriolebon.com.br'")));
         assertFalse(filter.test(new Atendimento("assunto: liberacao para usuario da daniela")));
+        assertFalse(filter.test(new Atendimento("sent: monday, july 31, 2017 9:21 am")));
+//        sent: monday, july 31, 2017 9:21 am
 //bom	0.493565	ruim (33,33%)	adicionais liberados: 40-gav, 48-nfe
 //mbom	0.827747	ruim (33,33%)	modulos liberados: 1-ctb, 2-gpa, 3-fpa, 4-lfi, 10-aue
 

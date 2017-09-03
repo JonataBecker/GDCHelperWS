@@ -44,9 +44,9 @@ import opennlp.tools.util.TrainingParameters;
  */
 public class GeradorBaseTreinamento {
 
-    static final int START = 1263033;
+    static final int START = 1262033;
 //    static final int END = 1263813; // Último registro
-    static final int END = 1263182;
+    static final int END = 1263032;
     static final int TAMANHO_MINIMO = 5;
     static final double TREINAMENTO = 0.7;
     static final int SEED = 2;
@@ -94,6 +94,12 @@ public class GeradorBaseTreinamento {
 
                 CategorizerResult outcomes = categorizer.categorize(sentence);
                 String category = outcomes.getBest();
+                double trust = outcomes.getTrust(category);
+                
+                if (trust < 0.9) {
+                    continue;
+                }
+                
                 
                 if (!totais.containsKey(category)) {
                     totais.put(category, 0);
@@ -112,31 +118,29 @@ public class GeradorBaseTreinamento {
 //                if (prob < 0.90) {
 //                    continue;
 //                }
-                double score = 0;
-                try {
-                    AnalyzeOptions parameters = new AnalyzeOptions.Builder().text(sentence).features(features).build();
-                    AnalysisResults response = service.analyze(parameters).execute();
-                    score = response.getSentiment().getDocument().getScore();
-                } catch (Exception e) {
-                    System.out.println("erro: " + sentence);
-                }
-
-                String categoryWatson = "neutro";
-                if (score > 0.25) {
-                    categoryWatson = "bom";
-                }
-                if (score > 0.75) {
-                    categoryWatson = "mbom";
-                }
-                if (score < -0.25) {
-                    categoryWatson = "ruim";
-                }
-                if (score < -0.75) {
-                    categoryWatson = "mruim";
-                }
+//                double score = 0;
+//                try {
+//                    AnalyzeOptions parameters = new AnalyzeOptions.Builder().text(sentence).features(features).build();
+//                    AnalysisResults response = service.analyze(parameters).execute();
+//                    score = response.getSentiment().getDocument().getScore();
+//                } catch (Exception e) {
+//                    System.out.println("erro: " + sentence);
+//                }
+//
+//                String categoryWatson = "neutro";
+//                if (score > 0.4) {
+//                    categoryWatson = "bom";
+//                } else {
+//                    if (score < -0.4) {
+//                        categoryWatson = "ruim";
+//                    } else {
+//                        continue;
+//                    }
+//                }
 //                System.out.println(response);
                 
-                System.out.println(categoryWatson+"\t" + score + "\t"+category +"\t"+sentence);
+//                System.out.println(categoryWatson+"\t" + score + "\t"+category +"\t"+sentence);
+                System.out.println(category + "\t" + sentence);
             }
         }
         
