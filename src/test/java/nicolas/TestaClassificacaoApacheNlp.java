@@ -23,11 +23,9 @@ public class TestaClassificacaoApacheNlp {
 
     public static void main(String[] args) throws Exception {
         TestaClassificacaoApacheNlp t = new TestaClassificacaoApacheNlp();
-        t.classificaTesta(SEED, true);
-        List<Double> pcts = new ArrayList<>();
-        for (int i = 0; i < 100; i++) {
-            pcts.add(t.classificaTesta(i, false));
-        }
+        List<FraseTreinamento> classificados = t.loadTreinamentos();
+        t.classificaTesta(classificados, SEED, true);
+        List<Double> pcts = t.classificaTestaVarios(classificados, false);
         double menor = 9999;
         double maior = 0;
         double soma = 0;
@@ -43,9 +41,25 @@ public class TestaClassificacaoApacheNlp {
         
     }
     
-    private double classificaTesta(long seed, boolean exibe) throws IOException {
-        List<FraseTreinamento> classificados = loadTreinamentos();
-        
+    public double classificaTestaVariosComMedia(List<FraseTreinamento> classificados) throws IOException {
+        List<Double> pcts = classificaTestaVarios(classificados, false);
+        double soma = 0;
+        for (Double pct : pcts) {
+            soma += pct;
+        }
+        return (soma / (double)pcts.size());
+    }
+    
+    public List<Double> classificaTestaVarios(List<FraseTreinamento> classificados, boolean exibe) throws IOException {
+        List<Double> pcts = new ArrayList<>();
+        for (int i = 0; i < 15; i++) {
+            pcts.add(classificaTesta(classificados, i, exibe));
+        }
+        return pcts;
+    }
+    
+    public double classificaTesta(List<FraseTreinamento> classificados, long seed, boolean exibe) throws IOException {
+        classificados = new ArrayList<>(classificados);
         // TESTE: USA SÓ BOM E RUIM
         classificados = classificados.stream().map((frase) -> new FraseTreinamento(frase.getCategoria().replaceFirst("^m", ""), frase.getFrase())).collect(Collectors.toList());
         // TESTE: IGNORA NEUTRO
@@ -71,7 +85,7 @@ public class TestaClassificacaoApacheNlp {
     private List<FraseTreinamento> divide(List<FraseTreinamento> treinamento, long seed) {
         List<FraseTreinamento> teste = new ArrayList<>();
         int registrosTeste = (int) (treinamento.size() * (1d - TREINAMENTO));
-        Random r = new Random(seed + treinamento.size());
+        Random r = new Random(seed);
         for (int i = 0; i < registrosTeste; i++) {
             int index = r.nextInt(treinamento.size());
             teste.add(treinamento.remove(index));

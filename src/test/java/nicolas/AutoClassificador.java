@@ -13,46 +13,41 @@ import com.ibm.watson.developer_cloud.natural_language_understanding.v1.model.An
 import com.ibm.watson.developer_cloud.natural_language_understanding.v1.model.Features;
 import com.ibm.watson.developer_cloud.natural_language_understanding.v1.model.SentimentOptions;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.stream.Collectors;
 import opennlp.tools.doccat.DoccatFactory;
 import opennlp.tools.doccat.DoccatModel;
 import opennlp.tools.doccat.DocumentCategorizerME;
-import opennlp.tools.doccat.DocumentSampleStream;
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
-import opennlp.tools.util.ObjectStream;
-import opennlp.tools.util.PlainTextByLineStream;
-import opennlp.tools.util.TrainingParameters;
 
 /**
  * Gera a base de treinamento do ApacheNLP à partir do Watson
  * 
  * Registros = 1263813;
  */
-public class GeradorBaseTreinamento {
+public class AutoClassificador {
 
-    static final int START = 1262033;
+    static final int START = 206000;
 //    static final int END = 1263813; // Último registro
-    static final int END = 1263032;
+    static final int END = 206500;
     static final int TAMANHO_MINIMO = 5;
     static final double TREINAMENTO = 0.7;
     static final int SEED = 2;
 
     public static void main(String[] args) throws Exception {
-        GeradorBaseTreinamento t = new GeradorBaseTreinamento();
+        AutoClassificador t = new AutoClassificador();
         List<Atendimento> atendimentos = new DataFileReader(START, END).loadAtendimentos(System.getProperty("user.home") + "/exportar.csv");
         List<FraseTreinamento> classificados = t.loadTreinamentos();
         
@@ -61,15 +56,12 @@ public class GeradorBaseTreinamento {
         // TESTE: IGNORA NEUTRO
         classificados = classificados.stream().filter((frase) -> !frase.getCategoria().equals("neutro")).collect(Collectors.toList());
         
-        List<FraseTreinamento> treinamento = new ArrayList<>(classificados);
-        List<FraseTreinamento> teste = t.divide(treinamento);
-        Set<String> classes = new HashSet<>();
-        for (FraseTreinamento classificado : classificados) {
-            classes.add(classificado.getCategoria());
-        }
+        TestaClassificacaoApacheNlp testador = new TestaClassificacaoApacheNlp();
         
-        System.out.println(treinamento.size() + " registros de treinamento");
-        System.out.println(teste.size() + " registros de teste");
+        List<FraseTreinamento> treinamento = new ArrayList<>(classificados);
+        ApacheCategorizer categorizer = ApacheCategorizer.fromTraining(treinamento);
+        double base = testador.classificaTestaVariosComMedia(treinamento);
+        System.out.println("base: " + base);
         
         NaturalLanguageUnderstanding service = new NaturalLanguageUnderstanding(
                 NaturalLanguageUnderstanding.VERSION_DATE_2017_02_27,
@@ -78,73 +70,75 @@ public class GeradorBaseTreinamento {
         );
         SentimentOptions sentiment = new SentimentOptions.Builder().build();
         Features features = new Features.Builder().sentiment(sentiment).build();
-
-        ApacheCategorizer categorizer = ApacheCategorizer.fromTraining(treinamento);
         
-        Map<String, Integer> totais = new HashMap<>();
+        
+        DecimalFormat df = new DecimalFormat("#0.00");
         
         for (Atendimento atendimento : atendimentos) {
             List<String> sentences = t.extractSentences(atendimento.getMensagem());
-//            System.out.println("----------------------");
             for (int i = 0; i < sentences.size(); i++) {
                 String sentence = sentences.get(i);
 
                 CategorizerResult outcomes = categorizer.categorize(sentence);
-                String category = outcomes.getBest();
-                double trust = outcomes.getTrust(category);
+                double scoreBom = outcomes.getTrust("bom");
+                double scoreRuim = outcomes.getTrust("ruim");
+                double score = scoreBom - scoreRuim;
+                double scoreWatson = 0;
+                        
                 
-                if (trust < 0.9) {
+                try {
+                    PrintStream original = System.out;
+                    System.setOut(new PrintStream(new ByteArrayOutputStream()));
+                    AnalyzeOptions parameters = new AnalyzeOptions.Builder().text(sentence).features(features).build();
+                    AnalysisResults response = service.analyze(parameters).execute();
+                    scoreWatson = response.getSentiment().getDocument().getScore();
+                    System.setOut(original);
+                } catch (Exception e) {
+//                    System.out.println("erro: " + sentence);
+                }
+
+                if (Math.abs(scoreWatson - score) > 0.25) {
                     continue;
                 }
                 
-                
-                if (!totais.containsKey(category)) {
-                    totais.put(category, 0);
+                if (score > -0.75 && score < 0.75) {
+                    continue;   
                 }
-
-//                if (prob < 0.75) {
-//                    continue;
-//                }
-
-                totais.put(category, totais.get(category) + 1);
-//                
-//                if (category.equals("0") || category.equals("1") || category.equals("neutro")) {
-//                    continue;
-//                }
-//                
-//                if (prob < 0.90) {
-//                    continue;
-//                }
-//                double score = 0;
-//                try {
-//                    AnalyzeOptions parameters = new AnalyzeOptions.Builder().text(sentence).features(features).build();
-//                    AnalysisResults response = service.analyze(parameters).execute();
-//                    score = response.getSentiment().getDocument().getScore();
-//                } catch (Exception e) {
-//                    System.out.println("erro: " + sentence);
-//                }
-//
-//                String categoryWatson = "neutro";
-//                if (score > 0.4) {
-//                    categoryWatson = "bom";
-//                } else {
-//                    if (score < -0.4) {
-//                        categoryWatson = "ruim";
-//                    } else {
-//                        continue;
-//                    }
-//                }
-//                System.out.println(response);
+                String classe;
+                if (score < 0) {
+                    classe = "ruim";
+                } else {
+                    classe = "bom";
+                }
                 
-//                System.out.println(categoryWatson+"\t" + score + "\t"+category +"\t"+sentence);
-                System.out.println(category + "\t" + sentence);
+                
+                treinamento.add(new FraseTreinamento(classe, sentence));
+//                System.out.println("tentando...");
+//                double newBase = testador.classificaTestaVariosComMedia(treinamento);
+//                if (newBase > base || base - newBase > 5) {
+//                    if (newBase > base) {
+//                        base = newBase;
+//                        System.out.println("aumentei pra " + newBase);
+//                    } else {
+//                        base += (newBase - base) * 0.01;
+//                        System.out.println("baixei pouco: " + newBase + " " + (newBase - base));
+//                    }
+//                    
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(System.getProperty("user.home") + "\\novo_modelo.bin"));
+                    for (FraseTreinamento fraseTreinamento : treinamento) {
+                        writer.write(fraseTreinamento.getCategoria() + "\t" + fraseTreinamento.getFrase() + "\n");
+                    }
+                    writer.close();
+//
+//                    
+//                } else {
+//                    treinamento.remove(treinamento.size() - 1);
+//                }
+//                System.out.println(df.format(score) + "\t" + df.format(scoreBom) + "\t" + df.format(scoreRuim) + "\t" + sentence);
             }
         }
         
-        for (Map.Entry<String, Integer> entry : totais.entrySet()) {
-            System.out.println(entry.getKey() + "\t" + entry.getValue());
-        }
-
+        System.out.println("base final: " + base);
         
     }
 
@@ -205,19 +199,8 @@ public class GeradorBaseTreinamento {
     }
     
     private String getModel(String name) {
-        String path = GeradorBaseTreinamento.class.getProtectionDomain().getCodeSource().getLocation().getPath().replace("target/test-classes/", "");
+        String path = AutoClassificador.class.getProtectionDomain().getCodeSource().getLocation().getPath().replace("target/test-classes/", "");
         return path + "src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\" + name;
-    }
-    
-    private InputStream getStreamFrom(List<FraseTreinamento> treinamento) {
-        StringBuilder buffer = new StringBuilder();
-        for (FraseTreinamento fraseTreinamento : treinamento) {
-            buffer.append(fraseTreinamento.getCategoria());
-            buffer.append('\t');
-            buffer.append(fraseTreinamento.getFrase());
-            buffer.append('\n');
-        }
-        return new ByteArrayInputStream(buffer.toString().getBytes());
     }
 
 }

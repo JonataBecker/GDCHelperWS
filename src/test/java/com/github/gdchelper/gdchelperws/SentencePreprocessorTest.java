@@ -18,6 +18,7 @@ public class SentencePreprocessorTest {
         SentencePreprocessor processor = new SentencePreprocessor();
         assertEquals("oi bom dia!", processor.process("Oi bom dia!"));
         assertEquals("maca", processor.process("Maça"));
+        assertEquals("parabens", processor.process("Parabéns"));
         assertEquals("houve erro ao enviar", processor.process("*** Houve erro ao enviar"));
         assertEquals("claro, antes da aprovacao mandamos o orcamento", processor.process("- Rodolfo: Claro, antes da aprovação mandamos o orçamento"));
         assertEquals("realizei acesso remoto", processor.process("- Alex: *** Realizei acesso remoto"));
