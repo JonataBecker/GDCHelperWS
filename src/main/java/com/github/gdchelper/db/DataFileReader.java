@@ -95,8 +95,8 @@ public class DataFileReader {
                 atendimento.setMensagem(record.get(3));
                 atendimento.setData(getDate(record.get(34)));
                 atendimento.setDataInicio(getDate(record.get(23)));
-                atendimento.setDataFim(getDate(record.get(27)));
-                atendimento.setSegundos(getInt(record.get(37)));
+                atendimento.setDataFim(getDate(record.get(28)));
+                atendimento.setSegundos(getInt(record.get(39)));
                 atendimento.setSistema(record.get(22));
                 atendimentos.add(atendimento);
                 if (i++ > end) {
