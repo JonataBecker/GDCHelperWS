@@ -25,11 +25,15 @@ public class DataBase {
     public void create() throws Exception {
         EntityManager em = persistenceManager.create();
         DataFileReader reader = new DataFileReader();
-        List<Atendimento> atendimentos = reader.loadAtendimentos("exportar.csv");
+//        List<Atendimento> atendimentos = reader.loadAtendimentos("exportar.csv");
+        List<Cliente> clientes = reader.loadClientes("clientes.csv");
         try {
             em.getTransaction().begin();
-            atendimentos.forEach((at) -> {
-                em.persist(at);
+//            atendimentos.forEach((at) -> {
+//                em.persist(at);
+//            });
+            clientes.forEach((cli) -> {
+                em.persist(cli);
             });
             em.getTransaction().commit();
         } catch (Exception e) {
