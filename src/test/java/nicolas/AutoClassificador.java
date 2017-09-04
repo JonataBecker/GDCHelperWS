@@ -26,9 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
-import opennlp.tools.doccat.DoccatFactory;
-import opennlp.tools.doccat.DoccatModel;
-import opennlp.tools.doccat.DocumentCategorizerME;
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 
@@ -39,16 +36,16 @@ import opennlp.tools.sentdetect.SentenceModel;
  */
 public class AutoClassificador {
 
-    static final int START = 206000;
+    static final int START = 205000;
 //    static final int END = 1263813; // Último registro
-    static final int END = 206500;
+    static final int END = 206000;
     static final int TAMANHO_MINIMO = 5;
     static final double TREINAMENTO = 0.7;
     static final int SEED = 2;
 
     public static void main(String[] args) throws Exception {
         AutoClassificador t = new AutoClassificador();
-        List<Atendimento> atendimentos = new DataFileReader(START, END).loadAtendimentos(System.getProperty("user.home") + "/exportar.csv");
+        List<Atendimento> atendimentos = new DataFileReader(START, END).loadAtendimentos("atendimentos.csv");
         List<FraseTreinamento> classificados = t.loadTreinamentos();
         
         // TESTE: USA SÓ BOM E RUIM

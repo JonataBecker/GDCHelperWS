@@ -42,7 +42,7 @@ public class Teste {
         Teste t = new Teste();
         DataFileReader data = new DataFileReader();
         
-        List<Atendimento> atendimentos = data.loadAtendimentos(System.getProperty("user.home") + "/exportar.csv");
+        List<Atendimento> atendimentos = data.loadAtendimentos(System.getProperty("user.home") + "/atendimentos.csv");
         List<FraseTreinamento> classificados = t.loadTreinamentos();
         
         // TESTE: USA SÓ BOM E RUIM

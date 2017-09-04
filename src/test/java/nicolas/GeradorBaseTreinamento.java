@@ -8,8 +8,6 @@ import com.github.gdchelper.gdchelperws.SentenceFilter;
 import com.github.gdchelper.gdchelperws.SentencePreprocessor;
 import com.github.gdchelper.jpa.Atendimento;
 import com.ibm.watson.developer_cloud.natural_language_understanding.v1.NaturalLanguageUnderstanding;
-import com.ibm.watson.developer_cloud.natural_language_understanding.v1.model.AnalysisResults;
-import com.ibm.watson.developer_cloud.natural_language_understanding.v1.model.AnalyzeOptions;
 import com.ibm.watson.developer_cloud.natural_language_understanding.v1.model.Features;
 import com.ibm.watson.developer_cloud.natural_language_understanding.v1.model.SentimentOptions;
 import java.io.BufferedReader;
@@ -18,7 +16,6 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,15 +24,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
-import opennlp.tools.doccat.DoccatFactory;
-import opennlp.tools.doccat.DoccatModel;
-import opennlp.tools.doccat.DocumentCategorizerME;
-import opennlp.tools.doccat.DocumentSampleStream;
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
-import opennlp.tools.util.ObjectStream;
-import opennlp.tools.util.PlainTextByLineStream;
-import opennlp.tools.util.TrainingParameters;
 
 /**
  * Gera a base de treinamento do ApacheNLP à partir do Watson
@@ -53,7 +43,7 @@ public class GeradorBaseTreinamento {
 
     public static void main(String[] args) throws Exception {
         GeradorBaseTreinamento t = new GeradorBaseTreinamento();
-        List<Atendimento> atendimentos = new DataFileReader(START, END).loadAtendimentos(System.getProperty("user.home") + "/exportar.csv");
+        List<Atendimento> atendimentos = new DataFileReader(START, END).loadAtendimentos(System.getProperty("user.home") + "/atendimentos.csv");
         List<FraseTreinamento> classificados = t.loadTreinamentos();
         
         // TESTE: USA SÓ BOM E RUIM

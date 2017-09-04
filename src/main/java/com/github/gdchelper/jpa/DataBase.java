@@ -1,6 +1,7 @@
 package com.github.gdchelper.jpa;
 
 import com.github.gdchelper.db.DataFileReader;
+import com.github.gdchelper.gdchelperws.ScoreUpdater;
 import java.util.List;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -25,13 +26,13 @@ public class DataBase {
     public void create() throws Exception {
         EntityManager em = persistenceManager.create();
         DataFileReader reader = new DataFileReader();
-//        List<Atendimento> atendimentos = reader.loadAtendimentos("exportar.csv");
+        List<Atendimento> atendimentos = reader.loadAtendimentos("atendimentos.csv");
         List<Cliente> clientes = reader.loadClientes("clientes.csv");
         try {
             em.getTransaction().begin();
-//            atendimentos.forEach((at) -> {
-//                em.persist(at);
-//            });
+            atendimentos.forEach((at) -> {
+                em.persist(at);
+            });
             clientes.forEach((cli) -> {
                 em.persist(cli);
             });
@@ -42,6 +43,11 @@ public class DataBase {
         } finally {
             em.close();
         }
+    }
+    
+    public void updateScore() throws Exception {
+        ScoreUpdater updater = new ScoreUpdater(persistenceManager);
+        updater.updateAtendimentosSemScore();
     }
 
 }

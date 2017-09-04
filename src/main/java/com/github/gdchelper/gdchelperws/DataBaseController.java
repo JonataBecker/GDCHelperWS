@@ -40,5 +40,16 @@ public class DataBaseController {
             result.use(Results.http()).body(e.getMessage()).setStatusCode(501);
         }
     }
+
+    @Get("/database/updateScore")
+    public void updateScore() {
+        try {
+            dataBase.updateScore();
+            result.use(Results.status()).accepted();
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.use(Results.http()).body(e.getMessage()).setStatusCode(501);
+        }
+    }
     
 }
