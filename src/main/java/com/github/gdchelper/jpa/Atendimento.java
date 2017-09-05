@@ -7,6 +7,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
 
 @Entity
 @Table(name = "Atendimento")
@@ -20,8 +21,11 @@ public class Atendimento {
     @Column(length = 60000)
     private String mensagem;
     private String sistema;
-    private Date data;
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date dataCriacao;
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date dataInicio;
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date dataFim;
     private int segundos;
 
@@ -72,12 +76,12 @@ public class Atendimento {
         this.sistema = sistema;
     }
 
-    public Date getData() {
-        return data;
+    public Date getDataCriacao() {
+        return dataCriacao;
     }
 
-    public void setData(Date data) {
-        this.data = data;
+    public void setDataCriacao(Date dataCriacao) {
+        this.dataCriacao = dataCriacao;
     }
 
     public Date getDataInicio() {
