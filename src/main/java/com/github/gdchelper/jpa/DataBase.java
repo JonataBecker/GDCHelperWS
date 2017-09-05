@@ -26,8 +26,8 @@ public class DataBase {
     public void create() throws Exception {
         EntityManager em = persistenceManager.create();
         DataFileReader reader = new DataFileReader();
-        List<Atendimento> atendimentos = reader.loadAtendimentos("atendimentos.csv");
-        List<Cliente> clientes = reader.loadClientes("clientes.csv");
+        List<Atendimento> atendimentos = reader.loadAtendimentos("atendimentos.dsv");
+        List<Cliente> clientes = reader.loadClientes("clientes.dsv");
         try {
             em.getTransaction().begin();
             atendimentos.forEach((at) -> {

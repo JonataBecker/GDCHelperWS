@@ -38,18 +38,21 @@ public class DataFileReader {
         List<Cliente> clientes = new ArrayList<>();
         int i = 0;
         try (FileReader reader = new FileReader(System.getProperty("user.home") + "/" + file)) {
-            Iterable<CSVRecord> records = CSVFormat.EXCEL.parse(reader);
+            Iterable<CSVRecord> records = CSVFormat.EXCEL.withDelimiter(';').parse(reader);
             for (CSVRecord record : records) {
-                if (i == 0) {
+                if (i == 0) { // Pula o cabeçalho
                     i++;
                     continue;
                 }
                 if (!record.get(2).equals("C")) { // Carrega apenas clientes
                     continue;
                 }
-//                if (getInt(record.get(38)) != 1) { // Carrega apenas ativos
-//                    continue;
-//                }
+                if (getInt(record.get(38)) != 1) { // Carrega apenas ativos
+                    continue;
+                }
+                if (getInt(record.get(39)) == 0) { // Carrega apenas com GDC
+                    continue;
+                }
                 Cliente cliente = new Cliente();
                 cliente.setCodigo(getInt(record.get(0)));
                 cliente.setNome(record.get(1));
@@ -63,12 +66,12 @@ public class DataFileReader {
                 cliente.setCidade(record.get(19));
                 cliente.setCep(record.get(21));
                 cliente.setUf(record.get(22));
-//                cliente.setDataCadastro(getDate(record.get(36)));
+                cliente.setDataCadastro(getDate(record.get(36)));
                 cliente.setGdc(getInt(record.get(39)));
                 cliente.setConceito(record.get(43));
-//                cliente.setVersaoAtual(record.get(67));
-//                cliente.setDataAtualizacao(getDate(record.get(66)));
-//                cliente.setVersaoLiberada(record.get(65));
+                cliente.setVersaoAtual(record.get(67));
+                cliente.setDataAtualizacao(getDate(record.get(66)));
+                cliente.setVersaoLiberada(record.get(65));
                 clientes.add(cliente);
             }
         }
@@ -83,7 +86,7 @@ public class DataFileReader {
         List<Atendimento> atendimentos = new ArrayList<>();
         int i = 0;
         try (FileReader reader = new FileReader(path + "/" + file)) {
-            Iterable<CSVRecord> records = CSVFormat.EXCEL.parse(reader);
+            Iterable<CSVRecord> records = CSVFormat.EXCEL.withDelimiter(';').parse(reader);
             for (CSVRecord record : records) {
                 if (i < start + 1) { // Pula cabeçalho e linhas iniciais
                     i++;
