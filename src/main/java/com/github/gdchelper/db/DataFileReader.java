@@ -2,6 +2,7 @@ package com.github.gdchelper.db;
 
 import com.github.gdchelper.jpa.Atendimento;
 import com.github.gdchelper.jpa.Cliente;
+import com.github.gdchelper.jpa.SistemaContratado;
 import com.github.gdchelper.jpa.Tecnico;
 import java.io.FileReader;
 import java.io.IOException;
@@ -100,6 +101,26 @@ public class DataFileReader {
             }
         }
         return tecnicos;
+    }
+    
+    public List<SistemaContratado> loadSistemasContratados(String file) throws IOException {
+        List<SistemaContratado> sistemas = new ArrayList<>();
+        int i = 0;
+        try (FileReader reader = new FileReader(System.getProperty("user.home") + "/" + file)) {
+            Iterable<CSVRecord> records = CSVFormat.EXCEL.parse(reader);
+            for (CSVRecord record : records) {
+                if (i == 0) { // Pula o cabeçalho
+                    i++;
+                    continue;
+                }
+                SistemaContratado sistema = new SistemaContratado();
+                sistema.setCodigoCliente(getInt(record.get(0)));
+                sistema.setCodigoSistema(getInt(record.get(1)));
+                sistema.setDescricao(record.get(2));
+                sistemas.add(sistema);
+            }
+        }
+        return sistemas;
     }
     
     public List<Atendimento> loadAtendimentos(String file) throws IOException {
