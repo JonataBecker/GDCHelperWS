@@ -2,6 +2,7 @@ package com.github.gdchelper.db;
 
 import com.github.gdchelper.jpa.Atendimento;
 import com.github.gdchelper.jpa.Cliente;
+import com.github.gdchelper.jpa.Tecnico;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
@@ -76,6 +77,29 @@ public class DataFileReader {
             }
         }
         return clientes;
+    }
+    
+    public List<Tecnico> loadTecnicos(String file) throws IOException {
+        List<Tecnico> tecnicos = new ArrayList<>();
+        int i = 0;
+        try (FileReader reader = new FileReader(System.getProperty("user.home") + "/" + file)) {
+            Iterable<CSVRecord> records = CSVFormat.EXCEL.parse(reader);
+            for (CSVRecord record : records) {
+                if (i == 0) { // Pula o cabeçalho
+                    i++;
+                    continue;
+                }
+                if (getInt(record.get(8)) != 1) { // Carrega apenas ativos
+                    continue;
+                }
+                Tecnico tecnico = new Tecnico();
+                tecnico.setCodigo(getInt(record.get(0)));
+                tecnico.setApelido(record.get(1));
+                tecnico.setNome(record.get(4));
+                tecnicos.add(tecnico);
+            }
+        }
+        return tecnicos;
     }
     
     public List<Atendimento> loadAtendimentos(String file) throws IOException {
