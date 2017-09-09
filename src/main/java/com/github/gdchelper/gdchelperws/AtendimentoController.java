@@ -54,7 +54,7 @@ public class AtendimentoController {
         EntityManager em = persistenceManager.create();
         try {
             List list = new ArrayList();
-            Query q = em.createNativeQuery("SELECT cliente, COUNT(*) AS quantidade, SUM(Segundos) AS tempo FROM Atendimento GROUP BY Cliente ORDER BY Quantidade DESC, Tempo DESC");
+            Query q = em.createNativeQuery("SELECT cliente, COUNT(*) AS quantidade, FORMAT(SUM(Segundos / 60 / 60), 2) AS tempo FROM Atendimento GROUP BY Cliente ORDER BY Quantidade DESC, Tempo DESC");
             q.getResultList().forEach((obj) -> {
                 Object[] item = (Object[]) obj;
                 Map resultMap = new LinkedHashMap();
