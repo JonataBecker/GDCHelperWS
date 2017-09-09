@@ -2,6 +2,8 @@ package com.github.gdchelper.db;
 
 import com.github.gdchelper.jpa.Atendimento;
 import com.github.gdchelper.jpa.Cliente;
+import com.github.gdchelper.jpa.SistemaContratado;
+import com.github.gdchelper.jpa.Tecnico;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
@@ -38,18 +40,21 @@ public class DataFileReader {
         List<Cliente> clientes = new ArrayList<>();
         int i = 0;
         try (FileReader reader = new FileReader(System.getProperty("user.home") + "/" + file)) {
-            Iterable<CSVRecord> records = CSVFormat.EXCEL.parse(reader);
+            Iterable<CSVRecord> records = CSVFormat.EXCEL.withDelimiter(';').parse(reader);
             for (CSVRecord record : records) {
-                if (i == 0) {
+                if (i == 0) { // Pula o cabeçalho
                     i++;
                     continue;
                 }
                 if (!record.get(2).equals("C")) { // Carrega apenas clientes
                     continue;
                 }
-//                if (getInt(record.get(38)) != 1) { // Carrega apenas ativos
-//                    continue;
-//                }
+                if (getInt(record.get(38)) != 1) { // Carrega apenas ativos
+                    continue;
+                }
+                if (getInt(record.get(39)) == 0) { // Carrega apenas com GDC
+                    continue;
+                }
                 Cliente cliente = new Cliente();
                 cliente.setCodigo(getInt(record.get(0)));
                 cliente.setNome(record.get(1));
@@ -63,16 +68,59 @@ public class DataFileReader {
                 cliente.setCidade(record.get(19));
                 cliente.setCep(record.get(21));
                 cliente.setUf(record.get(22));
-//                cliente.setDataCadastro(getDate(record.get(36)));
+                cliente.setDataCadastro(getDate(record.get(36)));
                 cliente.setGdc(getInt(record.get(39)));
                 cliente.setConceito(record.get(43));
-//                cliente.setVersaoAtual(record.get(67));
-//                cliente.setDataAtualizacao(getDate(record.get(66)));
-//                cliente.setVersaoLiberada(record.get(65));
+                cliente.setVersaoAtual(record.get(67));
+                cliente.setDataAtualizacao(getDate(record.get(66)));
+                cliente.setVersaoLiberada(record.get(65));
                 clientes.add(cliente);
             }
         }
         return clientes;
+    }
+    
+    public List<Tecnico> loadTecnicos(String file) throws IOException {
+        List<Tecnico> tecnicos = new ArrayList<>();
+        int i = 0;
+        try (FileReader reader = new FileReader(System.getProperty("user.home") + "/" + file)) {
+            Iterable<CSVRecord> records = CSVFormat.EXCEL.parse(reader);
+            for (CSVRecord record : records) {
+                if (i == 0) { // Pula o cabeçalho
+                    i++;
+                    continue;
+                }
+                if (getInt(record.get(8)) != 1) { // Carrega apenas ativos
+                    continue;
+                }
+                Tecnico tecnico = new Tecnico();
+                tecnico.setCodigo(getInt(record.get(0)));
+                tecnico.setApelido(record.get(1));
+                tecnico.setNome(record.get(4));
+                tecnicos.add(tecnico);
+            }
+        }
+        return tecnicos;
+    }
+    
+    public List<SistemaContratado> loadSistemasContratados(String file) throws IOException {
+        List<SistemaContratado> sistemas = new ArrayList<>();
+        int i = 0;
+        try (FileReader reader = new FileReader(System.getProperty("user.home") + "/" + file)) {
+            Iterable<CSVRecord> records = CSVFormat.EXCEL.parse(reader);
+            for (CSVRecord record : records) {
+                if (i == 0) { // Pula o cabeçalho
+                    i++;
+                    continue;
+                }
+                SistemaContratado sistema = new SistemaContratado();
+                sistema.setCodigoCliente(getInt(record.get(0)));
+                sistema.setCodigoSistema(getInt(record.get(1)));
+                sistema.setDescricao(record.get(2));
+                sistemas.add(sistema);
+            }
+        }
+        return sistemas;
     }
     
     public List<Atendimento> loadAtendimentos(String file) throws IOException {
@@ -83,7 +131,7 @@ public class DataFileReader {
         List<Atendimento> atendimentos = new ArrayList<>();
         int i = 0;
         try (FileReader reader = new FileReader(path + "/" + file)) {
-            Iterable<CSVRecord> records = CSVFormat.EXCEL.parse(reader);
+            Iterable<CSVRecord> records = CSVFormat.EXCEL.withDelimiter(';').parse(reader);
             for (CSVRecord record : records) {
                 if (i < start + 1) { // Pula cabeçalho e linhas iniciais
                     i++;
