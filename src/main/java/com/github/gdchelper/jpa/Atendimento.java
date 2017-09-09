@@ -18,7 +18,7 @@ public class Atendimento {
     private int id;
     private int cliente;
     private int tecnico;
-    @Column(length = 60000)
+    @Column(length = 20000)
     private String mensagem;
     private String sistema;
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)

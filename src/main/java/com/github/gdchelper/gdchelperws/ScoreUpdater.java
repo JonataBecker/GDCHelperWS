@@ -3,6 +3,7 @@ package com.github.gdchelper.gdchelperws;
 import com.github.gdchelper.jpa.Atendimento;
 import com.github.gdchelper.jpa.PersistenceManager;
 import com.github.gdchelper.jpa.ScoreAtendimento;
+import java.io.IOException;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -21,9 +22,9 @@ public class ScoreUpdater {
         this.geradorScoreAtendimento = new GeradorScoreAtendimento();
     }
 
-    public void updateAtendimentosSemScore() {
+    public void updateAtendimentosSemScore() throws IOException {
         EntityManager em = persistenceManager.create();
-        Query q = em.createQuery("SELECT a FROM Atendimento a WHERE <não tem score>");
+        Query q = em.createQuery("SELECT a FROM Atendimento a WHERE NOT EXISTS (SELECT DISTINCT(idAtendimento) FROM ScoreAtendimento WHERE idAtendimento = a.id)");
         List<Atendimento> atendimentosSemScore = q.getResultList();
         try {
             for (Atendimento atendimento : atendimentosSemScore) {
@@ -31,7 +32,6 @@ public class ScoreUpdater {
                 em.getTransaction().begin();
                 em.persist(score);
                 em.getTransaction().commit();
-
             }
         } catch (Exception e) {
             em.getTransaction().rollback();
@@ -39,7 +39,6 @@ public class ScoreUpdater {
         } finally {
             em.close();
         }
-        em.close();
 
     }
 

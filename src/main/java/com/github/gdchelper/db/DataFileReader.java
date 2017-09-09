@@ -2,6 +2,7 @@ package com.github.gdchelper.db;
 
 import com.github.gdchelper.jpa.Atendimento;
 import com.github.gdchelper.jpa.Cliente;
+import com.github.gdchelper.jpa.Contato;
 import com.github.gdchelper.jpa.SistemaContratado;
 import com.github.gdchelper.jpa.Tecnico;
 import java.io.FileReader;
@@ -80,6 +81,31 @@ public class DataFileReader {
         return clientes;
     }
     
+    public List<Contato> loadContatos(String file) throws IOException {
+        List<Contato> contatos = new ArrayList<>();
+        int i = 0;
+        try (FileReader reader = new FileReader(System.getProperty("user.home") + "/" + file)) {
+            Iterable<CSVRecord> records = CSVFormat.EXCEL.withDelimiter(';').parse(reader);
+            for (CSVRecord record : records) {
+                if (i == 0) { // Pula o cabeçalho
+                    i++;
+                    continue;
+                }
+                if (getInt(record.get(24)) != 1) { // Carrega apenas ativos
+                    continue;
+                }
+                Contato contato = new Contato();
+                contato.setCodigoCliente(getInt(record.get(0)));
+                contato.setNome(record.get(2));
+                contato.setCargo(record.get(9));
+                contato.setEmail(record.get(11));
+                contato.setTelefone(record.get(20));
+                contatos.add(contato);
+            }
+        }
+        return contatos;
+    }
+    
     public List<Tecnico> loadTecnicos(String file) throws IOException {
         List<Tecnico> tecnicos = new ArrayList<>();
         int i = 0;
@@ -142,7 +168,8 @@ public class DataFileReader {
                 atendimento.setDataFim(getDate(record.get(27)));
                 atendimento.setTecnico(getInt(record.get(4)));
                 atendimento.setCliente(getInt(record.get(21)));
-                atendimento.setMensagem(record.get(3));
+                String s = record.get(3);
+                atendimento.setMensagem(s.length() > 20000 ? s.substring(0, 20000) : s);
                 atendimento.setDataCriacao(getDate(record.get(34)));
                 atendimento.setSegundos((int) (atendimento.getDataFim().getTime() - atendimento.getDataInicio().getTime()) / 1000);
                 atendimento.setSistema(record.get(22));

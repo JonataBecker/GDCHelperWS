@@ -30,8 +30,11 @@ public class GeradorScoreAtendimento {
      * @param atendimento
      * @return ScoreAtendimento
      */
-    public ScoreAtendimento buildScore(Atendimento atendimento) {
-        return null;
+    public ScoreAtendimento buildScore(Atendimento atendimento) throws IOException {
+        ScoreAtendimento score = new ScoreAtendimento();
+        score.setIdAtendimento(atendimento.getId());
+        score.setScore(computeScore(atendimento));
+        return score;
     }
 
     /**
