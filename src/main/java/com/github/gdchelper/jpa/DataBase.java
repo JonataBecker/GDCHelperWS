@@ -29,7 +29,7 @@ public class DataBase {
         List<Atendimento> atendimentos = reader.loadAtendimentos("atendimentos.dsv");
         List<Cliente> clientes = reader.loadClientes("clientes.dsv");
         List<Tecnico> tecnicos = reader.loadTecnicos("tecnicos.csv");
-//        List<SistemaContratado> sistemas = reader.loadSistemasContratados("sistemas.dsv");
+        List<SistemaContratado> sistemas = reader.loadSistemasContratados("sistemas.csv");
         try {
             em.getTransaction().begin();
             atendimentos.forEach((at) -> {
@@ -41,9 +41,9 @@ public class DataBase {
             tecnicos.forEach((tec) -> {
                 em.persist(tec);
             });
-//            sistemas.forEach((sis) -> {
-//                em.persist(sis);
-//            });
+            sistemas.forEach((sis) -> {
+                em.persist(sis);
+            });
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();

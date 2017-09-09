@@ -17,8 +17,9 @@ public class SentenceSplitter {
     private final SentenceDetectorME sdetector;
 
     public SentenceSplitter() throws Exception {
-        InputStream is = new FileInputStream(getModel("pt-sent.bin"));
+        InputStream is = getModel("pt-sent.bin");
         SentenceModel model = new SentenceModel(is);
+        is.close();
         sdetector = new SentenceDetectorME(model);
     }
     
@@ -38,9 +39,8 @@ public class SentenceSplitter {
         return list;
     }
     
-    private static String getModel(String name) {
-        String path = ApacheCategorizer.class.getProtectionDomain().getCodeSource().getLocation().getPath().replace("target/test-classes/", "");
-        return path + "src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\" + name;
+    private static InputStream getModel(String name) {
+        return ApacheCategorizer.class.getResourceAsStream("/com/github/gdchelper/gdchelperws/models/" + name);
     }
 
 }

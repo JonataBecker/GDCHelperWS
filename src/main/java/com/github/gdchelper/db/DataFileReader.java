@@ -142,7 +142,8 @@ public class DataFileReader {
                 atendimento.setDataFim(getDate(record.get(27)));
                 atendimento.setTecnico(getInt(record.get(4)));
                 atendimento.setCliente(getInt(record.get(21)));
-                atendimento.setMensagem(record.get(3));
+                String s = record.get(3);
+                atendimento.setMensagem(s.length() > 20000 ? s.substring(0, 20000) : s);
                 atendimento.setDataCriacao(getDate(record.get(34)));
                 atendimento.setSegundos((int) (atendimento.getDataFim().getTime() - atendimento.getDataInicio().getTime()) / 1000);
                 atendimento.setSistema(record.get(22));

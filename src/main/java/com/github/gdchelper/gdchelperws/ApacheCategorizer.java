@@ -8,15 +8,13 @@ package com.github.gdchelper.gdchelperws;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javafx.geometry.Side;
 import opennlp.tools.doccat.DoccatFactory;
 import opennlp.tools.doccat.DoccatModel;
 import opennlp.tools.doccat.DocumentCategorizerME;
@@ -77,7 +75,7 @@ public class ApacheCategorizer {
     private static List<FraseTreinamento> loadTreinamentos() throws IOException {
         List<FraseTreinamento> treinamentos = new ArrayList<>();
         int i = 0;
-        try (BufferedReader reader = new BufferedReader(new FileReader(getModel("sentiment.bin")))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getModel("sentiment.bin")))) {
             while (true) {
                 String l = reader.readLine();
                 if (l == null) {
@@ -93,9 +91,8 @@ public class ApacheCategorizer {
         return treinamentos;
     }
     
-    private static String getModel(String name) {
-        String path = ApacheCategorizer.class.getProtectionDomain().getCodeSource().getLocation().getPath().replace("target/test-classes/", "");
-        return path + "src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\" + name;
+    private static InputStream getModel(String name) {
+        return ApacheCategorizer.class.getResourceAsStream("/com/github/gdchelper/gdchelperws/models/" + name);
     }
 
     /**

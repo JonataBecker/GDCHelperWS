@@ -1,14 +1,18 @@
 
 package com.github.gdchelper.jpa;
 
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  *
  * @author Nícolas Pohren
  */
+@Entity
+@Table(name = "ScoreAtendimento")
 public class ScoreAtendimento {
 
     @Id
