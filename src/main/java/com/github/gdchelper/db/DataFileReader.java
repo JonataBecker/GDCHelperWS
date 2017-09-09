@@ -138,14 +138,14 @@ public class DataFileReader {
                     continue;
                 }
                 Atendimento atendimento = new Atendimento();
-                atendimento.setDataInicio(getDate(record.get(1)));
-                atendimento.setDataFim(getDate(record.get(2)));
-                atendimento.setTecnico(getInt(record.get(3)));
-                atendimento.setCliente(getInt(record.get(4)));
-                atendimento.setMensagem(record.get(6));
-                atendimento.setDataCriacao(getDate(record.get(14)));
+                atendimento.setDataInicio(getDate(record.get(23)));
+                atendimento.setDataFim(getDate(record.get(27)));
+                atendimento.setTecnico(getInt(record.get(4)));
+                atendimento.setCliente(getInt(record.get(21)));
+                atendimento.setMensagem(record.get(3));
+                atendimento.setDataCriacao(getDate(record.get(34)));
                 atendimento.setSegundos((int) (atendimento.getDataFim().getTime() - atendimento.getDataInicio().getTime()) / 1000);
-//                atendimento.setSistema(record.get(22));
+                atendimento.setSistema(record.get(22));
                 atendimentos.add(atendimento);
                 if (i++ > end) {
                     break;

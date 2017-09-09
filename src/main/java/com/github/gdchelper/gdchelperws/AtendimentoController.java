@@ -50,11 +50,29 @@ public class AtendimentoController {
     }
 
     @Get("/atendimentos/historico")
-    public void atendimentoHistorico() {
+    public void atendimentoHistorico(String dataInicial, String dataFinal, String gdc) {
         EntityManager em = persistenceManager.create();
         try {
+            String sql = "SELECT \n"
+                    + "	CONCAT(Atendimento.cliente, '-', Cliente.nome) AS Cliente, \n"
+                    + "	COUNT(*) AS quantidade, \n"
+                    + "	FORMAT(SUM(Segundos / 60 / 60), 2) AS tempo \n"
+                    + "FROM Atendimento \n"
+                    + "INNER JOIN Cliente\n"
+                    + "	ON (Atendimento.cliente = Cliente.codigo)\n"
+                    + "INNER JOIN Tecnico\n"
+                    + "	ON (Cliente.gdc = Tecnico.codigo)\n"
+                    + "WHERE \n"
+                    + "	Atendimento.dataInicio >= ? AND\n"
+                    + "	Atendimento.dataFim >= ? AND\n"
+                    + "	Tecnico.nome LIKE ?\n"
+                    + "GROUP BY Atendimento.Cliente \n"
+                    + "ORDER BY Quantidade DESC, Tempo DESC";
             List list = new ArrayList();
-            Query q = em.createNativeQuery("SELECT cliente, COUNT(*) AS quantidade, FORMAT(SUM(Segundos / 60 / 60), 2) AS tempo FROM Atendimento GROUP BY Cliente ORDER BY Quantidade DESC, Tempo DESC");
+            Query q = em.createNativeQuery(sql);
+            q.setParameter(0, dataInicial);
+            q.setParameter(1, dataFinal);
+            q.setParameter(2, "%" + gdc + "%");
             q.getResultList().forEach((obj) -> {
                 Object[] item = (Object[]) obj;
                 Map resultMap = new LinkedHashMap();
