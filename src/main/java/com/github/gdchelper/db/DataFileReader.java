@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.persistence.EntityManager;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
@@ -24,17 +25,26 @@ import org.apache.commons.csv.CSVRecord;
 public class DataFileReader {
     
     private static final SimpleDateFormat FORMAT_DATE = new SimpleDateFormat("dd/MM/yy hh:mm:ss");
-    
+    private final EntityManager entityManager;
     private final int start;
     private final int end;
 
     public DataFileReader() {
-        this(0, 3000);
+        this(null);
+    }
+    
+    public DataFileReader(EntityManager entityManager) {
+        this(0, 3000, entityManager);
     }
     
     public DataFileReader(int start, int end) {
+        this(start, end, null);
+    }
+    
+    public DataFileReader(int start, int end, EntityManager entityManager) {
         this.start = start;
         this.end = end;
+        this.entityManager = entityManager;
     }
     
     public List<Cliente> loadClientes(String file) throws IOException {
@@ -70,7 +80,13 @@ public class DataFileReader {
                 cliente.setCep(record.get(21));
                 cliente.setUf(record.get(22));
                 cliente.setDataCadastro(getDate(record.get(36)));
-                cliente.setGdc(getInt(record.get(39)));
+                Tecnico tec = null;
+                try {
+                    tec = entityManager.find(Tecnico.class, getInt(record.get(39)));
+                } catch (Exception e) {
+                    tec = null;
+                }
+                cliente.setGdc(tec);
                 cliente.setConceito(record.get(43));
                 cliente.setVersaoAtual(record.get(67));
                 cliente.setDataAtualizacao(getDate(record.get(66)));

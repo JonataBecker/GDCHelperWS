@@ -3,6 +3,8 @@ package com.github.gdchelper.jpa;
 import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -23,7 +25,9 @@ public class Cliente {
     private String cep;
     private String uf;
     private Date dataCadastro;
-    private int gdc;
+    @ManyToOne
+    @JoinColumn(name = "gdc")
+    private Tecnico gdc;
     private String conceito;
     private String versaoAtual;
     private Date dataAtualizacao;
@@ -136,11 +140,11 @@ public class Cliente {
         this.dataCadastro = dataCadastro;
     }
 
-    public int getGdc() {
+    public Tecnico getGdc() {
         return gdc;
     }
 
-    public void setGdc(int gdc) {
+    public void setGdc(Tecnico gdc) {
         this.gdc = gdc;
     }
 

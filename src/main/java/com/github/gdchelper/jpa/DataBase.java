@@ -2,7 +2,6 @@ package com.github.gdchelper.jpa;
 
 import com.github.gdchelper.db.DataFileReader;
 import com.github.gdchelper.gdchelperws.ScoreUpdater;
-import java.util.List;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
@@ -25,27 +24,24 @@ public class DataBase {
 
     public void create() throws Exception {
         EntityManager em = persistenceManager.create();
-        DataFileReader reader = new DataFileReader();
-//        List<Atendimento> atendimentos = reader.loadAtendimentos("atendimentos.dsv");
-        List<Cliente> clientes = reader.loadClientes("clientes.dsv");
-        List<Contato> contatos = reader.loadContatos("contatos.dsv");
-        List<Tecnico> tecnicos = reader.loadTecnicos("tecnicos.csv");
-        List<SistemaContratado> sistemas = reader.loadSistemasContratados("sistemas.csv");
+        DataFileReader reader = new DataFileReader(em);
         try {
             em.getTransaction().begin();
-//            atendimentos.forEach((at) -> {
-//                em.persist(at);
-//            });
-            clientes.forEach((cli) -> {
-                em.persist(cli);
-            });
-            contatos.forEach((con) -> {
-                em.persist(con);
-            });
-            tecnicos.forEach((tec) -> {
+            reader.loadTecnicos("tecnicos.csv").forEach((tec) -> {
                 em.persist(tec);
             });
-            sistemas.forEach((sis) -> {
+            em.getTransaction().commit();
+            em.getTransaction().begin();
+            reader.loadClientes("clientes.dsv").forEach((cli) -> {
+                em.persist(cli);
+            });
+            reader.loadContatos("contatos.dsv").forEach((con) -> {
+                em.persist(con);
+            });
+//            reader.loadAtendimentos("atendimentos.dsv").forEach((at) -> {
+//                em.persist(at);
+//            });
+            reader.loadSistemasContratados("sistemas.csv").forEach((sis) -> {
                 em.persist(sis);
             });
             em.getTransaction().commit();

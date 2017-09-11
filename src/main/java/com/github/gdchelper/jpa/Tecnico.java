@@ -16,7 +16,7 @@ public class Tecnico {
     public Tecnico() {
         
     }
-
+    
     public int getCodigo() {
         return codigo;
     }
