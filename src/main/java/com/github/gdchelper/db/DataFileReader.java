@@ -1,6 +1,7 @@
 package com.github.gdchelper.db;
 
 import com.github.gdchelper.jpa.Atendimento;
+import com.github.gdchelper.jpa.Atualizacao;
 import com.github.gdchelper.jpa.Cliente;
 import com.github.gdchelper.jpa.Contato;
 import com.github.gdchelper.jpa.SistemaContratado;
@@ -163,6 +164,26 @@ public class DataFileReader {
             }
         }
         return sistemas;
+    }
+    
+    public List<Atualizacao> loadAtualizacoes(String file) throws IOException {
+        List<Atualizacao> atualizacoes = new ArrayList<>();
+        int i = 0;
+        try (FileReader reader = new FileReader(System.getProperty("user.home") + "/" + file)) {
+            Iterable<CSVRecord> records = CSVFormat.EXCEL.withDelimiter(';').parse(reader);
+            for (CSVRecord record : records) {
+                if (i == 0) { // Pula o cabeçalho
+                    i++;
+                    continue;
+                }
+                Atualizacao atualizacao = new Atualizacao();
+                atualizacao.setCodigoCliente(getInt(record.get(0)));
+                atualizacao.setData(getDate(record.get(1)));
+                atualizacao.setVersao(record.get(10));
+                atualizacoes.add(atualizacao);
+            }
+        }
+        return atualizacoes;
     }
     
     public List<Atendimento> loadAtendimentos(String file) throws IOException {
