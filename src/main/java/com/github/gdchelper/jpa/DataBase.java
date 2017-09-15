@@ -46,6 +46,9 @@ public class DataBase {
             reader.loadSistemasContratados("sistemas.csv").forEach((sis) -> {
                 em.persist(sis);
             });
+            reader.loadAtualizacoes("atualizacoes.dsv").forEach((atu) -> {
+                em.persist(atu);
+            });
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();

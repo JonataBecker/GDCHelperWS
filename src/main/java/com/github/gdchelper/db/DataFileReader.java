@@ -1,6 +1,7 @@
 package com.github.gdchelper.db;
 
 import com.github.gdchelper.jpa.Atendimento;
+import com.github.gdchelper.jpa.Atualizacao;
 import com.github.gdchelper.jpa.Cliente;
 import com.github.gdchelper.jpa.Contato;
 import com.github.gdchelper.jpa.SistemaContratado;
@@ -10,6 +11,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -17,6 +20,7 @@ import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.ArrayUtils;
 
 /**
  *
@@ -68,8 +72,8 @@ public class DataFileReader {
                 }
                 Cliente cliente = new Cliente();
                 cliente.setCodigo(getInt(record.get(0)));
-                cliente.setNome(record.get(1));
-                cliente.setNomeFantasia(record.get(3));
+                cliente.setNome(stringSuffle(record.get(1)));
+                cliente.setNomeFantasia(stringSuffle(record.get(3)));
                 cliente.setCpfCnpj(record.get(6));
                 cliente.setTelefonePrincipal(record.get(10));
                 cliente.setTelefoneSecundario(record.get(12));
@@ -112,7 +116,7 @@ public class DataFileReader {
                 }
                 Contato contato = new Contato();
                 contato.setCodigoCliente(getInt(record.get(0)));
-                contato.setNome(record.get(2));
+                contato.setNome(stringSuffle(record.get(2)));
                 contato.setCargo(record.get(9));
                 contato.setEmail(record.get(11));
                 contato.setTelefone(record.get(20));
@@ -163,6 +167,26 @@ public class DataFileReader {
             }
         }
         return sistemas;
+    }
+    
+    public List<Atualizacao> loadAtualizacoes(String file) throws IOException {
+        List<Atualizacao> atualizacoes = new ArrayList<>();
+        int i = 0;
+        try (FileReader reader = new FileReader(System.getProperty("user.home") + "/" + file)) {
+            Iterable<CSVRecord> records = CSVFormat.EXCEL.withDelimiter(';').parse(reader);
+            for (CSVRecord record : records) {
+                if (i == 0) { // Pula o cabeçalho
+                    i++;
+                    continue;
+                }
+                Atualizacao atualizacao = new Atualizacao();
+                atualizacao.setCodigoCliente(getInt(record.get(0)));
+                atualizacao.setData(getDate(record.get(1)));
+                atualizacao.setVersao(record.get(10));
+                atualizacoes.add(atualizacao);
+            }
+        }
+        return atualizacoes;
     }
     
     public List<Atendimento> loadAtendimentos(String file) throws IOException {
@@ -218,6 +242,12 @@ public class DataFileReader {
     
     private boolean isEmpty(String value) {
         return value == null || value.isEmpty();
+    }
+
+    private String stringSuffle(String value) {
+        List bytes = Arrays.asList(ArrayUtils.toObject(value.getBytes()));
+        Collections.shuffle(bytes);
+        return new String(ArrayUtils.toPrimitive((Byte[]) bytes.toArray(new Byte[] {})));
     }
     
 }
