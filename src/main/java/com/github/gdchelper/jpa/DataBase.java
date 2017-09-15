@@ -12,14 +12,16 @@ import javax.persistence.EntityManager;
 public class DataBase {
 
     private final PersistenceManager persistenceManager;
+    private final ScoreUpdater scoreUpdater;
 
     public DataBase() {
-        this(null);
+        this(null, null);
     }
 
     @Inject
-    public DataBase(PersistenceManager persistenceManager) {
+    public DataBase(PersistenceManager persistenceManager, ScoreUpdater scoreUpdater) {
         this.persistenceManager = persistenceManager;
+        this.scoreUpdater = scoreUpdater;
     }
 
     public void create() throws Exception {
@@ -38,9 +40,9 @@ public class DataBase {
             reader.loadContatos("contatos.dsv").forEach((con) -> {
                 em.persist(con);
             });
-//            reader.loadAtendimentos("atendimentos.dsv").forEach((at) -> {
-//                em.persist(at);
-//            });
+            reader.loadAtendimentos("atendimentos.dsv").forEach((at) -> {
+                em.persist(at);
+            });
             reader.loadSistemasContratados("sistemas.csv").forEach((sis) -> {
                 em.persist(sis);
             });
@@ -54,8 +56,7 @@ public class DataBase {
     }
     
     public void updateScore() throws Exception {
-        ScoreUpdater updater = new ScoreUpdater(persistenceManager);
-        updater.updateAtendimentosSemScore();
+        scoreUpdater.updateAtendimentosSemScore();
     }
 
 }

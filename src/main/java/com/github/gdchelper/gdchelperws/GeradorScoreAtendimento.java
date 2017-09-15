@@ -54,7 +54,11 @@ public class GeradorScoreAtendimento {
             double score = scoreBom - scoreRuim;
             totalScore += score;
         }
-        return totalScore / sentences.size();
+        double score = totalScore / sentences.size();
+        if (Double.isInfinite(score) || Double.isNaN(score)) {
+            score = 0;
+        }
+        return score;
     }
 
 }

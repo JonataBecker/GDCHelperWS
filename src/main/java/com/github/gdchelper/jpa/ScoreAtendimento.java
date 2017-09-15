@@ -47,5 +47,10 @@ public class ScoreAtendimento {
     public void setScore(double score) {
         this.score = score;
     }
+
+    @Override
+    public String toString() {
+        return "ScoreAtendimento{" + "id=" + id + ", idAtendimento=" + idAtendimento + ", score=" + score + '}';
+    }
     
 }
