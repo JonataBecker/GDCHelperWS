@@ -18,6 +18,7 @@ public class Atendimento {
     private int id;
     private int cliente;
     private int tecnico;
+    private int contato;
     @Column(length = 20000)
     private String mensagem;
     private String sistema;
@@ -58,6 +59,14 @@ public class Atendimento {
 
     public void setTecnico(int tecnico) {
         this.tecnico = tecnico;
+    }
+
+    public int getContato() {
+        return contato;
+    }
+
+    public void setContato(int contato) {
+        this.contato = contato;
     }
 
     public String getMensagem() {
