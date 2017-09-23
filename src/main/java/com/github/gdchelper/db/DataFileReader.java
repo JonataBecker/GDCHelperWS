@@ -116,6 +116,7 @@ public class DataFileReader {
                 }
                 Contato contato = new Contato();
                 contato.setCodigoCliente(getInt(record.get(0)));
+                contato.setCodigo(getInt(record.get(1)));
                 contato.setNome(stringSuffle(record.get(2)));
                 contato.setCargo(record.get(9));
                 contato.setEmail(record.get(11));
@@ -207,6 +208,7 @@ public class DataFileReader {
                 atendimento.setDataInicio(getDate(record.get(23)));
                 atendimento.setDataFim(getDate(record.get(27)));
                 atendimento.setTecnico(getInt(record.get(4)));
+                atendimento.setContato(getInt(record.get(20)));
                 atendimento.setCliente(getInt(record.get(21)));
                 String s = record.get(3);
                 atendimento.setMensagem(s.length() > 20000 ? s.substring(0, 20000) : s);

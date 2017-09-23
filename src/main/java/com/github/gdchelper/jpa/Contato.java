@@ -13,6 +13,7 @@ public class Contato {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    private int codigo;
     private int codigoCliente;
     private String nome;
     private String cargo;
@@ -29,6 +30,14 @@ public class Contato {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getCodigo() {
+        return codigo;
+    }
+
+    public void setCodigo(int codigo) {
+        this.codigo = codigo;
     }
 
     public int getCodigoCliente() {
