@@ -30,8 +30,15 @@ public class ClienteController {
         this.persistenceManager = persistenceManager;
     }
     
+    @Get("/cliente/{idCliente}")
+    public void Cliente(int idCliente) {
+        EntityManager em = persistenceManager.create();
+        result.use(Results.json()).withoutRoot().from(em.find(Cliente.class, idCliente)).serialize();
+        em.close();
+    }
+    
     @Get("/cliente")
-    public void cliente(String gdc) {
+    public void listaClientes(String gdc) {
         String apelidoGdc = "";
         int codigoGdc = 0;
         if (gdc != null) {
