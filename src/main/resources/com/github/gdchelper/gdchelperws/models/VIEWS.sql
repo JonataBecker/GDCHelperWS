@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW View_Atendimento_ScoreAS 
+CREATE OR REPLACE VIEW View_Atendimento_Score AS 
 SELECT atd.*, score,
        score * (greatest(0, 180 - datediff(now(), dataInicio)) / 180) as score_peso
    FROM atendimento atd join scoreatendimento score on atd.id = score.idAtendimento
@@ -10,4 +10,19 @@ SELECT Cliente.* FROM (
 	UNION
 	SELECT Cliente.*, 0 AS score_peso FROM cliente
 ) Cliente
-GROUP BY codigo
+GROUP BY codigo;
+
+
+CREATE OR REPLACE VIEW View_Atendimento_Periodo_Quantidade AS
+    SELECT 
+        DATE_FORMAT(DataInicio, "%m/%Y") AS Periodo,
+        DATE_FORMAT(DataInicio, "%Y-%m") AS Periodo_USA,
+        COUNT(*) AS Quantidade
+    FROM 
+        Atendimento
+    GROUP BY 
+        Periodo, Periodo_USA
+    ORDER BY 
+        Periodo_USA DESC    
+    LIMIT 12;
+
