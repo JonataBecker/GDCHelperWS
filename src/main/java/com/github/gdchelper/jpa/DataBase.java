@@ -2,6 +2,10 @@ package com.github.gdchelper.jpa;
 
 import com.github.gdchelper.db.DataFileReader;
 import com.github.gdchelper.gdchelperws.ScoreUpdater;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
@@ -29,6 +33,7 @@ public class DataBase {
         DataFileReader reader = new DataFileReader(em);
         try {
             em.getTransaction().begin();
+            runSql(em);
             reader.loadTecnicos("tecnicos.csv").forEach((tec) -> {
                 em.persist(tec);
             });
@@ -57,7 +62,27 @@ public class DataBase {
             em.close();
         }
     }
-    
+
+    private void runSql(EntityManager em) throws IOException {
+        InputStream file = getClass().getResourceAsStream("/com/github/gdchelper/gdchelperws/models/VIEWS.sql");
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file))) {
+            while (true) {
+                String l = reader.readLine();
+                if (l == null) {
+                    break;
+                }
+                if (l.trim().isEmpty()) {
+                    continue;
+                }
+                sb.append(l);
+            }
+        }
+        for (String command : sb.toString().split(";")) {
+            em.createNativeQuery(command).executeUpdate();
+        }
+    }
+
     public void updateScore() throws Exception {
         scoreUpdater.updateAtendimentosSemScore();
     }
