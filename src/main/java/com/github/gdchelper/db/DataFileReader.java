@@ -144,6 +144,8 @@ public class DataFileReader {
                 tecnico.setCodigo(getInt(record.get(0)));
                 tecnico.setApelido(record.get(1));
                 tecnico.setNome(record.get(4));
+                tecnico.setSetor(getInt(record.get(6)));
+                tecnico.setFoto(record.get(97).replace("F:\\RECH\\Usr\\FOTOS\\", ""));
                 tecnicos.add(tecnico);
             }
         }
