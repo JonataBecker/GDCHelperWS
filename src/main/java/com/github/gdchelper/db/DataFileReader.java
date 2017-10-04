@@ -38,7 +38,7 @@ public class DataFileReader {
     }
     
     public DataFileReader(EntityManager entityManager) {
-        this(0, 3000, entityManager);
+        this(623813, 626813, entityManager);
     }
     
     public DataFileReader(int start, int end) {

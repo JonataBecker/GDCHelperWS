@@ -20,6 +20,7 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class ScoreUpdaterController {
 
+    private static final long PERIOD = 24 * 60 * 60 * 1000;
     private final ScoreUpdater scoreUpdater;
     
     public ScoreUpdaterController() {
@@ -43,7 +44,7 @@ public class ScoreUpdaterController {
             public void run() {
                 execute();
             }
-        }, 0, 15000);
+        }, PERIOD, PERIOD);
     }
     
     public void execute() {

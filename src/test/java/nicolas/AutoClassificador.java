@@ -44,6 +44,11 @@ public class AutoClassificador {
     static final int SEED = 2;
 
     public static void main(String[] args) throws Exception {
+        
+        List<Atendimento> at = new DataFileReader().loadAtendimentos("atendimentos.dsv");
+        
+        if (true) return;
+        
         AutoClassificador t = new AutoClassificador();
         List<Atendimento> atendimentos = new DataFileReader(START, END).loadAtendimentos("atendimentos.csv");
         List<FraseTreinamento> classificados = t.loadTreinamentos();

@@ -4,8 +4,8 @@ import br.com.caelum.vraptor.Controller;
 import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.view.Results;
-import com.github.gdchelper.jpa.Cliente;
 import com.github.gdchelper.jpa.PersistenceManager;
+import com.github.gdchelper.jpa.ViewCliente;
 import java.util.List;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -46,13 +46,13 @@ public class ClienteController {
         Query q;
         try {
             if (!apelidoGdc.isEmpty()) {
-                q = em.createQuery("SELECT c, t FROM Cliente c INNER JOIN c.gdc t WHERE t.apelido = :gdc");
+                q = em.createQuery("SELECT c, t FROM ViewCliente c INNER JOIN c.gdc t WHERE t.apelido = :gdc");
                 q.setParameter("gdc", apelidoGdc);
             } else {
-                q = em.createQuery("SELECT c, t FROM Cliente c INNER JOIN c.gdc t WHERE t.codigo = :gdc");
+                q = em.createQuery("SELECT c, t FROM ViewCliente c INNER JOIN c.gdc t WHERE t.codigo = :gdc");
                 q.setParameter("gdc", codigoGdc);
             }
-            List<Cliente> userList = q.getResultList();
+            List<ViewCliente> userList = q.getResultList();
             result.use(Results.json()).withoutRoot().from(userList).serialize();
         } finally {
             em.close();
