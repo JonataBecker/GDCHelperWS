@@ -35,7 +35,7 @@ public class ClienteController {
     @Get("/cliente/{idCliente}")
     public void Cliente(int idCliente) {
         EntityManager em = persistenceManager.create();
-        result.use(Results.json()).withoutRoot().from(em.find(Cliente.class, idCliente)).serialize();
+        result.use(Results.json()).withoutRoot().from(em.find(ViewCliente.class, idCliente)).serialize();
         em.close();
     }
     

@@ -49,7 +49,7 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "ViewCliente.findByVersaoAtual", query = "SELECT v FROM ViewCliente v WHERE v.versaoAtual = :versaoAtual")
     , @NamedQuery(name = "ViewCliente.findByVersaoLiberada", query = "SELECT v FROM ViewCliente v WHERE v.versaoLiberada = :versaoLiberada")
     , @NamedQuery(name = "ViewCliente.findByGdc", query = "SELECT v FROM ViewCliente v WHERE v.gdc = :gdc")
-    , @NamedQuery(name = "ViewCliente.findByScorePeso", query = "SELECT v FROM ViewCliente v WHERE v.scorePeso = :scorePeso")})
+    , @NamedQuery(name = "ViewCliente.findByScoreMedia", query = "SELECT v FROM ViewCliente v WHERE v.scoreMedia = :scoreMedia")})
 public class ViewCliente implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -260,12 +260,12 @@ public class ViewCliente implements Serializable {
         this.gdc = gdc;
     }
 
-    public Double getScorePeso() {
+    public Double getScoreMedia() {
         return scoreMedia;
     }
 
-    public void setScorePeso(Double scorePeso) {
-        this.scoreMedia = scorePeso;
+    public void setScoreMedia(Double scoreMedia) {
+        this.scoreMedia = scoreMedia;
     }
     
 }

@@ -75,11 +75,13 @@ public class DataBase {
                 if (l.trim().isEmpty()) {
                     continue;
                 }
-                sb.append(l);
+                sb.append(l).append(' ');
             }
         }
         for (String command : sb.toString().split(";")) {
-            em.createNativeQuery(command).executeUpdate();
+            if (!command.trim().isEmpty()) {
+                em.createNativeQuery(command).executeUpdate();
+            }
         }
     }
 
