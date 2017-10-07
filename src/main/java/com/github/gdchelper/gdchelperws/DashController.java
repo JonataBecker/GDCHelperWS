@@ -35,11 +35,23 @@ public class DashController {
         this.persistenceManager = persistenceManager;
     }
 
-   @Get("/dash/atendimento/quantidade")
+    @Get("/dash/atendimento/quantidade")
     public void atendimentoQuantidade() {
         EntityManager em = persistenceManager.create();
         try {
             Query q = em.createQuery("SELECT v FROM ViewAtendimentoPeriodoQuantidade v ORDER BY v.periodoUSA ASC");
+            List<ViewAtendimentoPeriodoQuantidade> list = q.getResultList();
+            result.use(Results.json()).withoutRoot().from(list).serialize();
+        } finally {
+            em.close();
+        }
+    }
+
+    @Get("/dash/atendimento/tempo")
+    public void atendimentoTempo() {
+        EntityManager em = persistenceManager.create();
+        try {
+            Query q = em.createQuery("SELECT v FROM ViewAtendimentoPeriodoTempo v ORDER BY v.periodoUSA ASC");
             List<ViewAtendimentoPeriodoQuantidade> list = q.getResultList();
             result.use(Results.json()).withoutRoot().from(list).serialize();
         } finally {

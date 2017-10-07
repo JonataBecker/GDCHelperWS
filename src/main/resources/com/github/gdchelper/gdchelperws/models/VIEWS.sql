@@ -27,3 +27,16 @@ CREATE OR REPLACE VIEW View_Atendimento_Periodo_Quantidade AS
     ORDER BY
         Periodo_USA DESC
     LIMIT 12;
+
+CREATE OR REPLACE VIEW View_Atendimento_Periodo_Tempo AS
+    SELECT
+        DATE_FORMAT(DataInicio, "%m/%Y") AS Periodo,
+        DATE_FORMAT(DataInicio, "%Y-%m") AS Periodo_USA,
+        FORMAT(SUM(Segundos / 60 / 60), 2) AS Tempo
+    FROM
+        Atendimento
+    GROUP BY
+        Periodo, Periodo_USA
+    ORDER BY
+        Periodo_USA DESC
+    LIMIT 12;
