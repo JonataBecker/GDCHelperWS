@@ -114,6 +114,9 @@ public class ViewCliente implements Serializable {
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Column(name = "score_media")
     private Double scoreMedia;
+    @Size(max = 20000)
+    @Column(name = "sistemas")
+    private String sistemas;
 
     public ViewCliente() {
     }
@@ -268,6 +271,14 @@ public class ViewCliente implements Serializable {
 
     public void setScoreMedia(Double scoreMedia) {
         this.scoreMedia = scoreMedia;
+    }
+
+    public String getSistemas() {
+        return sistemas;
+    }
+
+    public void setSistemas(String sistemas) {
+        this.sistemas = sistemas;
     }
     
 }

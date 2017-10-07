@@ -5,12 +5,14 @@ SELECT atd.*, score
 ;
 
 CREATE OR REPLACE VIEW View_Cliente AS 
-SELECT Cliente.* FROM (
+SELECT Cliente.*, sc.sistemas FROM (
 	SELECT Cliente.*, AVG(score) AS score_media FROM Cliente INNER JOIN View_Atendimento_Score Score ON Cliente.codigo = Score.cliente
 	GROUP BY codigo
 	UNION
 	SELECT Cliente.*, 0 AS score_media FROM Cliente
 ) Cliente
+LEFT JOIN (SELECT codigoCliente, GROUP_CONCAT(descricao SEPARATOR ', ') AS sistemas FROM sistemacontratado GROUP BY codigoCliente) AS sc
+ON Cliente.codigo = sc.codigoCliente
 GROUP BY codigo;
 
 CREATE OR REPLACE VIEW View_Atendimento_Periodo_Quantidade AS
