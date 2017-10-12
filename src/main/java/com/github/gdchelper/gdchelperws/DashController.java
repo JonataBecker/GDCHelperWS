@@ -6,7 +6,7 @@ import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.view.Results;
 import com.github.gdchelper.jpa.Cliente;
 import com.github.gdchelper.jpa.PersistenceManager;
-import com.github.gdchelper.jpa.ViewAtendimentoPeriodoQuantidade;
+import com.github.gdchelper.jpa.ViewAtendimentoPeriodoTecnico;
 import java.util.List;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -35,28 +35,21 @@ public class DashController {
         this.persistenceManager = persistenceManager;
     }
 
-    @Get("/dash/atendimento/quantidade")
-    public void atendimentoQuantidade() {
+    @Get("/dash/atendimento")
+    public void atendimentoQuantidade(String gdc) {
         EntityManager em = persistenceManager.create();
         try {
-            Query q = em.createQuery("SELECT v FROM ViewAtendimentoPeriodoQuantidade v ORDER BY v.periodoUSA ASC");
-            List<ViewAtendimentoPeriodoQuantidade> list = q.getResultList();
+            if (gdc == null) {
+                gdc = "";
+            }
+            Query q = em.createQuery("SELECT v FROM ViewAtendimentoPeriodoTecnico v WHERE v.tecnico = :gdc ORDER BY v.periodoUSA ASC");
+            q.setParameter("gdc", gdc);
+            List<ViewAtendimentoPeriodoTecnico> list = q.getResultList();
             result.use(Results.json()).withoutRoot().from(list).serialize();
         } finally {
             em.close();
         }
     }
 
-    @Get("/dash/atendimento/tempo")
-    public void atendimentoTempo() {
-        EntityManager em = persistenceManager.create();
-        try {
-            Query q = em.createQuery("SELECT v FROM ViewAtendimentoPeriodoTempo v ORDER BY v.periodoUSA ASC");
-            List<ViewAtendimentoPeriodoQuantidade> list = q.getResultList();
-            result.use(Results.json()).withoutRoot().from(list).serialize();
-        } finally {
-            em.close();
-        }
-    }
 
 }

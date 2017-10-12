@@ -115,7 +115,7 @@ public class ViewCliente implements Serializable {
     @Column(name = "score_media")
     private Double scoreMedia;
     @Size(max = 20000)
-    @Column(name = "sistemas")
+    @Column(name = "sistemas", columnDefinition="text")
     private String sistemas;
 
     public ViewCliente() {

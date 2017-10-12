@@ -1,6 +1,7 @@
 package com.github.gdchelper.jpa;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,9 +16,9 @@ import jdk.nashorn.internal.ir.annotations.Immutable;
  */
 @Entity
 @Immutable
-@Table(name = "View_Atendimento_Periodo_Quantidade")
-public class ViewAtendimentoPeriodoQuantidade implements Serializable {
-
+@Table(name = "View_Atendimento_Periodo_Tecnico")
+public class ViewAtendimentoPeriodoTecnico implements Serializable {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "Periodo", updatable = false, nullable = false)
@@ -25,9 +26,13 @@ public class ViewAtendimentoPeriodoQuantidade implements Serializable {
     @Column(name = "Periodo_USA")
     private String periodoUSA;
     @Column(name = "Quantidade")
-    private long quantidade;
+    private BigDecimal quantidade;
+    @Column(name = "Tempo")
+    private String tempo;
+    @Column(name = "Tecnico")
+    private String tecnico;
 
-    public ViewAtendimentoPeriodoQuantidade() {
+    public ViewAtendimentoPeriodoTecnico() {
     }
 
     public String getPeriodo() {
@@ -46,12 +51,28 @@ public class ViewAtendimentoPeriodoQuantidade implements Serializable {
         this.periodoUSA = periodoUSA;
     }
 
-    public long getQuantidade() {
+    public BigDecimal getQuantidade() {
         return quantidade;
     }
 
-    public void setQuantidade(long quantidade) {
+    public void setQuantidade(BigDecimal quantidade) {
         this.quantidade = quantidade;
     }
 
+    public String getTempo() {
+        return tempo;
+    }
+
+    public void setTempo(String tempo) {
+        this.tempo = tempo;
+    }
+
+    public String getTecnico() {
+        return tecnico;
+    }
+
+    public void setTecnico(String tecnico) {
+        this.tecnico = tecnico;
+    }
+    
 }
