@@ -40,7 +40,7 @@ public class ClienteController {
     }
     
     @Get("/cliente")
-    public void listaClientes(String gdc) {
+    public void listaClientes(String gdc, String ordem) {
         String apelidoGdc = "";
         int codigoGdc = 0;
         if (gdc != null) {
@@ -51,16 +51,24 @@ public class ClienteController {
                 apelidoGdc = gdc;
             }
         }
+        ordem = ordem == null ? "" : ordem;
         EntityManager em = persistenceManager.create();
         Query q;
         try {
+            String query;
+            Object gdcFilter;
             if (!apelidoGdc.isEmpty()) {
-                q = em.createQuery("SELECT c, t FROM ViewCliente c INNER JOIN c.gdc t WHERE t.apelido = :gdc");
-                q.setParameter("gdc", apelidoGdc);
+                query = "SELECT c, t FROM ViewCliente c INNER JOIN c.gdc t WHERE t.apelido = :gdc";
+                gdcFilter = apelidoGdc;
             } else {
-                q = em.createQuery("SELECT c, t FROM ViewCliente c INNER JOIN c.gdc t WHERE t.codigo = :gdc");
-                q.setParameter("gdc", codigoGdc);
+                query = "SELECT c, t FROM ViewCliente c INNER JOIN c.gdc t WHERE t.codigo = :gdc";
+                gdcFilter = codigoGdc;
             }
+            if (!ordem.isEmpty()) {
+                query += " ORDER BY " + ordem;
+            }
+            q = em.createQuery(query);
+            q.setParameter("gdc", gdcFilter);
             List<ViewCliente> userList = q.getResultList();
             result.use(Results.json()).withoutRoot().from(userList).serialize();
         } finally {
