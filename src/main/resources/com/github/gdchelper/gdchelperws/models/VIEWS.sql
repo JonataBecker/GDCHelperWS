@@ -52,5 +52,8 @@ CREATE OR REPLACE VIEW View_Atendimento_Periodo_Tecnico AS
     FROM 
         View_Atendimento_Periodo
     GROUP BY 
-        Periodo, Periodo_USA
+        Periodo, Periodo_USA;
 
+CREATE OR REPLACE VIEW View_Score_Atendimento AS
+SELECT atd.*, score
+   FROM atendimento atd join scoreatendimento score on atd.id = score.idAtendimento
