@@ -33,12 +33,12 @@ public class DataBase {
         DataFileReader reader = new DataFileReader(em);
         try {
             em.getTransaction().begin();
-            runSql(em);
+//            runSql(em);
             reader.loadTecnicos("tecnicos.csv").forEach((tec) -> {
                 em.persist(tec);
             });
-            em.getTransaction().commit();
-            em.getTransaction().begin();
+//            em.getTransaction().commit();
+//            em.getTransaction().begin();
             reader.loadClientes("clientes.dsv").forEach((cli) -> {
                 em.persist(cli);
             });

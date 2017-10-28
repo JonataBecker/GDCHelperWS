@@ -4,10 +4,10 @@ import br.com.caelum.vraptor.Controller;
 import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.view.Results;
-import com.github.gdchelper.jpa.Cliente;
 import com.github.gdchelper.jpa.Contato;
 import com.github.gdchelper.jpa.PersistenceManager;
 import com.github.gdchelper.jpa.ViewCliente;
+import com.github.gdchelper.jpa.ViewClienteAtendimento;
 import java.util.List;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -87,6 +87,34 @@ public class ClienteController {
         } finally {
             em.close();
         }
+    }
+    
+    @Get("/cliente/{idCliente}/atendimento")
+    public void clienteAtendimento(int idCliente) {
+     EntityManager em = persistenceManager.create();
+        try {
+            Query q = em.createQuery("SELECT c FROM ViewClienteAtendimento c WHERE c.cliente = :idCliente");
+            q.setParameter("idCliente", idCliente);
+            List<ViewClienteAtendimento> userList = q.getResultList();
+            result.use(Results.json()).withoutRoot().from(userList).serialize();
+        } finally {
+            em.close();
+        }
+    
+    }
+    @Get("/cliente/{idCliente}/atendimento/{codigoContato}")
+    public void clienteAtendimentoContato(int idCliente, int codigoContato) {
+     EntityManager em = persistenceManager.create();
+        try {
+            Query q = em.createQuery("SELECT c FROM ViewClienteAtendimento c WHERE c.cliente = :idCliente AND c.codigoContato = :contato");
+            q.setParameter("idCliente", idCliente);
+            q.setParameter("contato", codigoContato);
+            List<ViewClienteAtendimento> userList = q.getResultList();
+            result.use(Results.json()).withoutRoot().from(userList).serialize();
+        } finally {
+            em.close();
+        }
+    
     }
     
 }

@@ -56,4 +56,29 @@ CREATE OR REPLACE VIEW View_Atendimento_Periodo_Tecnico AS
 
 CREATE OR REPLACE VIEW View_Score_Atendimento AS
 SELECT atd.*, score
-   FROM atendimento atd join scoreatendimento score on atd.id = score.idAtendimento
+   FROM Atendimento atd join ScoreAtendimento score on atd.id = score.idAtendimento
+
+CREATE OR REPLACE VIEW View_Cliente_Atendimento AS
+    SELECT 
+        Atendimento.dataInicio as Data,
+        Atendimento.cliente,
+        Atendimento.id,
+        Atendimento.mensagem,
+        Atendimento.contato as codigoContato,
+        Tecnico.Apelido as Tecnico,
+        SistemaContratado.descricao as Sistema,
+        Contato.nome as Contato
+    FROM Atendimento
+    INNER JOIN 
+            Tecnico ON (Tecnico.codigo = Atendimento.tecnico)
+    INNER JOIN 
+            SistemaContratado ON (
+                    Atendimento.sistema = SistemaContratado.codigoSistema AND 
+            Atendimento.cliente = SistemaContratado.codigoCliente
+            )
+    LEFT JOIN 
+            Contato ON (
+                    Atendimento.contato = Contato.codigo AND
+            Atendimento.cliente = Contato.codigoCliente
+        )	
+    ;
