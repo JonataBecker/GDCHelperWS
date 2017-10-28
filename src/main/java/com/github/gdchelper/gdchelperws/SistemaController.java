@@ -43,4 +43,17 @@ public class SistemaController {
 
     }
 
+    @Get("/sistema")
+    public void Sistema(int idCliente) {
+        EntityManager em = persistenceManager.create();
+        try {
+            Query q = em.createQuery("SELECT s FROM SistemaContratado s WHERE s.codigoCliente = :idCliente");
+            q.setParameter("idCliente", idCliente);
+            List<SistemaContratado> userList = q.getResultList();
+            result.use(Results.json()).withoutRoot().from(userList).serialize();
+        } finally {
+            em.close();
+        }
+    }
+
 }
