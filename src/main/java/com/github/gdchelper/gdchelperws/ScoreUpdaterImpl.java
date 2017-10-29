@@ -29,13 +29,20 @@ public class ScoreUpdaterImpl implements ScoreUpdater {
         EntityManager em = persistenceManager.create();
         Query q = em.createQuery("SELECT a FROM Atendimento a WHERE NOT EXISTS (SELECT DISTINCT(idAtendimento) FROM ScoreAtendimento WHERE idAtendimento = a.id)");
         List<Atendimento> atendimentosSemScore = q.getResultList();
+        int count = 0;
         try {
+            em.getTransaction().begin();
             for (Atendimento atendimento : atendimentosSemScore) {
                 ScoreAtendimento score = geradorScoreAtendimento.buildScore(atendimento);
-                em.getTransaction().begin();
                 em.persist(score);
-                em.getTransaction().commit();
+                count++;
+                if (count > 100) {
+                    em.getTransaction().commit();
+                    em.getTransaction().begin();
+                    count = 0;
+                }
             }
+            em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
             throw e;

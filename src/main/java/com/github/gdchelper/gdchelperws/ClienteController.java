@@ -4,10 +4,10 @@ import br.com.caelum.vraptor.Controller;
 import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.view.Results;
-import com.github.gdchelper.jpa.Contato;
 import com.github.gdchelper.jpa.PersistenceManager;
 import com.github.gdchelper.jpa.ViewCliente;
 import com.github.gdchelper.jpa.ViewClienteAtendimento;
+import com.github.gdchelper.jpa.ViewContato;
 import java.util.List;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -77,12 +77,17 @@ public class ClienteController {
     }
     
     @Get("/contatos")
-    public void contatosCliente(int idCliente) {
+    public void contatosCliente(int idCliente, String ordem) {
         EntityManager em = persistenceManager.create();
+        ordem = ordem == null ? "" : ordem;
         try {
-            Query q = em.createQuery("SELECT c FROM Contato c WHERE c.codigoCliente = :idCliente");
+            String query = "SELECT c FROM ViewContato c WHERE c.codigoCliente = :idCliente";
+            if (!ordem.isEmpty()) {
+                query += " ORDER BY " + ordem;
+            }
+            Query q = em.createQuery(query);
             q.setParameter("idCliente", idCliente);
-            List<Contato> userList = q.getResultList();
+            List<ViewContato> userList = q.getResultList();
             result.use(Results.json()).withoutRoot().from(userList).serialize();
         } finally {
             em.close();

@@ -56,7 +56,7 @@ CREATE OR REPLACE VIEW View_Atendimento_Periodo_Tecnico AS
 
 CREATE OR REPLACE VIEW View_Score_Atendimento AS
 SELECT atd.*, score
-   FROM Atendimento atd join ScoreAtendimento score on atd.id = score.idAtendimento
+   FROM Atendimento atd join ScoreAtendimento score on atd.id = score.idAtendimento;
 
 CREATE OR REPLACE VIEW View_Cliente_Atendimento AS
     SELECT 
@@ -82,3 +82,11 @@ CREATE OR REPLACE VIEW View_Cliente_Atendimento AS
             Atendimento.cliente = Contato.codigoCliente
         )	
     ;
+
+CREATE OR REPLACE VIEW View_Contato AS
+SELECT contato.*, IFNULL(scores.score, 0) AS score FROM contato 
+   LEFT JOIN (SELECT cliente, contato, AVG(score) AS score FROM View_Atendimento_Score GROUP BY cliente, contato) scores ON contato.codigoCliente = scores.cliente AND contato.id = scores.contato;
+
+CREATE OR REPLACE VIEW View_Sistema_Contratado AS
+SELECT sistema.*, IFNULL(scores.score, 0) AS score FROM sistemacontratado sistema
+   LEFT JOIN (SELECT cliente, sistema, AVG(score) AS score FROM View_Atendimento_Score GROUP BY cliente, sistema) scores ON sistema.codigoCliente = scores.cliente AND sistema.codigoSistema = scores.sistema;

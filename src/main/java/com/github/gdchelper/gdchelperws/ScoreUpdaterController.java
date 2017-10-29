@@ -33,18 +33,17 @@ public class ScoreUpdaterController {
      * @param vRaptorInitialized
      */
     public void whenApplicationStarts(@Observes VRaptorInitialized vRaptorInitialized) {
-        System.out.println("init");
     }
     
     @Inject
     public ScoreUpdaterController(ScoreUpdater scoreUpdater) {
         this.scoreUpdater = scoreUpdater;
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                execute();
-            }
-        }, PERIOD, PERIOD);
+//        new Timer().schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//                execute();
+//            }
+//        }, PERIOD, PERIOD);
     }
     
     public void execute() {

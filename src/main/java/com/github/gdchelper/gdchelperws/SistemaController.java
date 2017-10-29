@@ -5,7 +5,7 @@ import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.view.Results;
 import com.github.gdchelper.jpa.PersistenceManager;
-import com.github.gdchelper.jpa.SistemaContratado;
+import com.github.gdchelper.jpa.ViewSistemaContratado;
 import java.util.List;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -34,8 +34,8 @@ public class SistemaController {
     public void listaSistemasDisponiveis() {
         EntityManager em = persistenceManager.create();
         try {
-            Query q = em.createQuery("SELECT s.codigoSistema, s.descricao FROM SistemaContratado s GROUP BY s.codigoSistema");
-            List<SistemaContratado> userList = q.getResultList();
+            Query q = em.createQuery("SELECT s.codigoSistema, s.descricao FROM ViewSistemaContratado s GROUP BY s.codigoSistema");
+            List<ViewSistemaContratado> userList = q.getResultList();
             result.use(Results.json()).withoutRoot().from(userList).serialize();
         } finally {
             em.close();
@@ -44,12 +44,17 @@ public class SistemaController {
     }
 
     @Get("/sistema")
-    public void Sistema(int idCliente) {
+    public void Sistema(int idCliente, String ordem) {
         EntityManager em = persistenceManager.create();
+        ordem = ordem == null ? "" : ordem;
         try {
-            Query q = em.createQuery("SELECT s FROM SistemaContratado s WHERE s.codigoCliente = :idCliente");
+            String query = "SELECT s FROM ViewSistemaContratado s WHERE s.codigoCliente = :idCliente";
+            if (!ordem.isEmpty()) {
+                query += " ORDER BY " + ordem;
+            }
+            Query q = em.createQuery(query);
             q.setParameter("idCliente", idCliente);
-            List<SistemaContratado> userList = q.getResultList();
+            List<ViewSistemaContratado> userList = q.getResultList();
             result.use(Results.json()).withoutRoot().from(userList).serialize();
         } finally {
             em.close();

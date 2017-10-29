@@ -57,6 +57,7 @@ public class DataBase {
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
+            e.printStackTrace();
             throw e;
         } finally {
             em.close();
