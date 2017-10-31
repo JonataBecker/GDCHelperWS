@@ -1,4 +1,4 @@
-CREATE OR REPLACE VIEW View_Atendimento_Score AS 
+    CREATE OR REPLACE VIEW View_Atendimento_Score AS 
 SELECT atd.*, score
    FROM Atendimento atd join ScoreAtendimento score on atd.id = score.idAtendimento
    WHERE dataInicio > date_sub(now(), INTERVAL 180 DAY)
@@ -67,7 +67,8 @@ CREATE OR REPLACE VIEW View_Cliente_Atendimento AS
         Atendimento.contato as codigoContato,
         Tecnico.Apelido as Tecnico,
         SistemaContratado.descricao as Sistema,
-        Contato.nome as Contato
+        Contato.nome as Contato,
+        scoreatendimento.score as score
     FROM Atendimento
     INNER JOIN 
             Tecnico ON (Tecnico.codigo = Atendimento.tecnico)
@@ -81,6 +82,8 @@ CREATE OR REPLACE VIEW View_Cliente_Atendimento AS
                     Atendimento.contato = Contato.codigo AND
             Atendimento.cliente = Contato.codigoCliente
         )	
+    INNER JOIN 
+            scoreatendimento ON (Atendimento.id = scoreatendimento.idAtendimento)
     ;
 
 CREATE OR REPLACE VIEW View_Contato AS

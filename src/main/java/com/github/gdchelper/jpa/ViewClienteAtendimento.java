@@ -37,6 +37,8 @@ public class ViewClienteAtendimento implements Serializable {
     private String contato;
     @Column(name = "Mensagem")
     private String mensagem;
+    @Column(name = "score")
+    private double score;
 
     public ViewClienteAtendimento() {
     }
@@ -103,6 +105,14 @@ public class ViewClienteAtendimento implements Serializable {
 
     public void setMensagem(String mensagem) {
         this.mensagem = mensagem;
+    }
+
+    public double getScore() {
+        return score;
+    }
+
+    public void setScore(double score) {
+        this.score = score;
     }
 
 }
