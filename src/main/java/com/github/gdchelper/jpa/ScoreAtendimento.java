@@ -9,7 +9,6 @@ import javax.persistence.Table;
 
 /**
  *
- * @author Nícolas Pohren
  */
 @Entity
 @Table(name = "ScoreAtendimento")

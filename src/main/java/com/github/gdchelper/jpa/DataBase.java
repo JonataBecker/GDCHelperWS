@@ -10,8 +10,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
 /**
- *
- * @author JonataBecker
+ * Classe responsável pela criação da base de dados
  */
 public class DataBase {
 
@@ -27,18 +26,23 @@ public class DataBase {
         this.persistenceManager = persistenceManager;
         this.scoreUpdater = scoreUpdater;
     }
-
+    
+    /**
+     * Executa a criação da base de dados
+     * 
+     * @throws Exception 
+     */
     public void create() throws Exception {
         EntityManager em = persistenceManager.create();
         DataFileReader reader = new DataFileReader(em);
         try {
             em.getTransaction().begin();
-//            runSql(em);
+            runSql(em);
             reader.loadTecnicos("tecnicos.csv").forEach((tec) -> {
                 em.persist(tec);
             });
-//            em.getTransaction().commit();
-//            em.getTransaction().begin();
+            em.getTransaction().commit();
+            em.getTransaction().begin();
             reader.loadClientes("clientes.dsv").forEach((cli) -> {
                 em.persist(cli);
             });
@@ -64,6 +68,12 @@ public class DataBase {
         }
     }
 
+    /**
+     * Executa SQL de criação de VIEWS 
+     * 
+     * @param em
+     * @throws IOException 
+     */
     private void runSql(EntityManager em) throws IOException {
         InputStream file = getClass().getResourceAsStream("/com/github/gdchelper/gdchelperws/models/VIEWS.sql");
         StringBuilder sb = new StringBuilder();
@@ -85,7 +95,12 @@ public class DataBase {
             }
         }
     }
-
+    
+    /**
+     * Atualiza o store de atendimentos
+     * 
+     * @throws Exception 
+     */
     public void updateScore() throws Exception {
         scoreUpdater.updateAtendimentosSemScore();
     }

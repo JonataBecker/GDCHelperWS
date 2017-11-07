@@ -8,8 +8,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- *
- * @author JonataBecker
+ * Interceptor responsável pelo Cors validation
  */
 @Intercepts
 @RequestScoped

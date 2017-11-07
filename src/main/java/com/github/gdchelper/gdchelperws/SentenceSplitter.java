@@ -1,6 +1,5 @@
 package com.github.gdchelper.gdchelperws;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -10,7 +9,6 @@ import opennlp.tools.sentdetect.SentenceModel;
 
 /**
  *
- * @author Nícolas Pohren
  */
 public class SentenceSplitter {
 
@@ -22,7 +20,7 @@ public class SentenceSplitter {
         is.close();
         sdetector = new SentenceDetectorME(model);
     }
-    
+
     public List<String> extractSentences(String text) throws IOException {
         List<String> list = new ArrayList<>();
         String[] lines = text.split("\n");
@@ -38,7 +36,7 @@ public class SentenceSplitter {
         }
         return list;
     }
-    
+
     private static InputStream getModel(String name) {
         return ApacheCategorizer.class.getResourceAsStream("/com/github/gdchelper/gdchelperws/models/" + name);
     }

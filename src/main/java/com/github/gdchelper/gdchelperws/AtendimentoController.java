@@ -10,8 +10,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
 /**
- *
- * @author JonataBecker
+ * Controller responsável por informações de atendimentos
  */
 @Controller
 public class AtendimentoController {
@@ -34,6 +33,14 @@ public class AtendimentoController {
         this.historicoAntedimentos = historicoAntedimentos;
     }
 
+    /**
+     * Histórico de atendimentos
+     *
+     * @param dataInicial
+     * @param dataFinal
+     * @param gdc
+     * @param cliente
+     */
     @Get("/atendimentos/historico")
     public void atendimentoHistorico(String dataInicial, String dataFinal, String gdc, String cliente) {
         EntityManager em = persistenceManager.create();
@@ -44,7 +51,14 @@ public class AtendimentoController {
             em.close();
         }
     }
-    
+
+    /**
+     * Histórico de atendimentos por contato
+     *
+     * @param idCliente
+     * @param dataInicial
+     * @param dataFinal
+     */
     @Get("/atendimentos/historico/contato")
     public void atendimentoHistoricoContato(int idCliente, String dataInicial, String dataFinal) {
         EntityManager em = persistenceManager.create();
@@ -55,8 +69,15 @@ public class AtendimentoController {
             em.close();
         }
     }
-    
-     @Get("/atendimentos/historico/sistema")
+
+    /**
+     * Histórico de atendimentos por sistema
+     * 
+     * @param idCliente
+     * @param dataInicial
+     * @param dataFinal 
+     */
+    @Get("/atendimentos/historico/sistema")
     public void atendimentoHistoricoSistema(int idCliente, String dataInicial, String dataFinal) {
         EntityManager em = persistenceManager.create();
         try {

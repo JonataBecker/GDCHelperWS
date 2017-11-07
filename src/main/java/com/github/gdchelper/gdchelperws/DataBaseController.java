@@ -8,8 +8,7 @@ import com.github.gdchelper.jpa.DataBase;
 import javax.inject.Inject;
 
 /**
- *
- * @author JonataBecker
+ * Controller responsável pela criação da base de dados
  */
 @Controller
 public class DataBaseController {
@@ -29,7 +28,10 @@ public class DataBaseController {
         this.result = result;
         this.dataBase = dataBase;
     }
-
+    
+    /**
+     * Executa criação da base de dados
+     */
     @Get("/database/create")
     public void create() {
         try {
@@ -40,7 +42,10 @@ public class DataBaseController {
             result.use(Results.http()).body(e.getMessage()).setStatusCode(501);
         }
     }
-
+    
+    /**
+     * Atualiza score de atendimentos
+     */
     @Get("/database/updateScore")
     public void updateScore() {
         try {

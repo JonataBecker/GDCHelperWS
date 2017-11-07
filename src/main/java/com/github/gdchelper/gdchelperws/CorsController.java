@@ -7,8 +7,7 @@ import br.com.caelum.vraptor.view.Results;
 import javax.inject.Inject;
 
 /**
- *
- * @author JonataBecker
+ * Controller responsável pelo Cors Validation
  */
 @Controller
 public class CorsController {
@@ -28,7 +27,7 @@ public class CorsController {
     }   
 
     @Options("/*")
-    public void atendimento() {
+    public void options() {
         result.use(Results.status()).ok();
     }
 }

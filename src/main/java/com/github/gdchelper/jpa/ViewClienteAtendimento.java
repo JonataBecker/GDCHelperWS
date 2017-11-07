@@ -11,8 +11,7 @@ import javax.persistence.Table;
 import jdk.nashorn.internal.ir.annotations.Immutable;
 
 /**
- *
- * @author JonataBecker
+ * View com informações de atendimentos de clientes
  */
 @Entity
 @Immutable

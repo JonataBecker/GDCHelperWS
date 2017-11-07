@@ -6,8 +6,6 @@
 package com.github.gdchelper.gdchelperws;
 
 import br.com.caelum.vraptor.events.VRaptorInitialized;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.context.ApplicationScoped;
@@ -22,7 +20,7 @@ public class ScoreUpdaterController {
 
     private static final long PERIOD = 24 * 60 * 60 * 1000;
     private final ScoreUpdater scoreUpdater;
-    
+
     public ScoreUpdaterController() {
         this(null);
     }
@@ -34,7 +32,7 @@ public class ScoreUpdaterController {
      */
     public void whenApplicationStarts(@Observes VRaptorInitialized vRaptorInitialized) {
     }
-    
+
     @Inject
     public ScoreUpdaterController(ScoreUpdater scoreUpdater) {
         this.scoreUpdater = scoreUpdater;
@@ -45,7 +43,7 @@ public class ScoreUpdaterController {
 //            }
 //        }, PERIOD, PERIOD);
     }
-    
+
     public void execute() {
         try {
             scoreUpdater.updateAtendimentosSemScore();

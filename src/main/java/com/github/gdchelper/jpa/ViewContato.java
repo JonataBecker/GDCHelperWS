@@ -6,6 +6,7 @@
 package com.github.gdchelper.jpa;
 
 import java.io.Serializable;
+import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,7 +20,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author Pichau
  */
 @Entity
 @Table(name = "view_contato")
@@ -67,6 +67,8 @@ public class ViewContato implements Serializable {
     @NotNull
     @Column(name = "score")
     private double score;
+    @Column(name = "DataUltimoAtendimento")
+    private Date dataUltimoAtendimento;
 
     public ViewContato() {
     }
@@ -133,6 +135,14 @@ public class ViewContato implements Serializable {
 
     public void setScore(double score) {
         this.score = score;
+    }
+
+    public Date getDataUltimaAtualizacao() {
+        return dataUltimoAtendimento;
+    }
+
+    public void setDataUltimaAtualizacao(Date dataUltimaAtualizacao) {
+        this.dataUltimoAtendimento = dataUltimaAtualizacao;
     }
     
 }

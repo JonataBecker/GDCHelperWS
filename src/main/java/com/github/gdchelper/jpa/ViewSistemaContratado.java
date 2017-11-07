@@ -19,7 +19,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author Pichau
  */
 @Entity
 @Table(name = "view_sistema_contratado")

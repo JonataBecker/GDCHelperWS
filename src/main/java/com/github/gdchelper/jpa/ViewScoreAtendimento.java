@@ -22,7 +22,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author Pichau
  */
 @Entity
 @Table(name = "View_Score_Atendimento")

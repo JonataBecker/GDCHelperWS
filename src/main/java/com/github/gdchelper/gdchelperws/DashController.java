@@ -4,7 +4,6 @@ import br.com.caelum.vraptor.Controller;
 import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.view.Results;
-import com.github.gdchelper.jpa.Cliente;
 import com.github.gdchelper.jpa.PersistenceManager;
 import com.github.gdchelper.jpa.ViewAtendimentoPeriodoTecnico;
 import java.util.List;
@@ -13,8 +12,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 /**
- *
- * @author JonataBecker
+ * Controller responsável por informações do DashBoard
  */
 @Controller
 public class DashController {
@@ -35,6 +33,11 @@ public class DashController {
         this.persistenceManager = persistenceManager;
     }
 
+    /**
+     * Retorna informações de quantidade/Tempo total de atendimentos por periodo
+     *
+     * @param gdc
+     */
     @Get("/dash/atendimento")
     public void atendimentoQuantidade(String gdc) {
         EntityManager em = persistenceManager.create();
@@ -50,6 +53,5 @@ public class DashController {
             em.close();
         }
     }
-
 
 }

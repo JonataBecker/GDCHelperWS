@@ -70,9 +70,9 @@ CREATE OR REPLACE VIEW View_Cliente_Atendimento AS
         Contato.nome as Contato,
         scoreatendimento.score as score
     FROM Atendimento
-    INNER JOIN 
+    LEFT JOIN 
             Tecnico ON (Tecnico.codigo = Atendimento.tecnico)
-    INNER JOIN 
+    LEFT JOIN 
             SistemaContratado ON (
                     Atendimento.sistema = SistemaContratado.codigoSistema AND 
             Atendimento.cliente = SistemaContratado.codigoCliente
@@ -82,14 +82,18 @@ CREATE OR REPLACE VIEW View_Cliente_Atendimento AS
                     Atendimento.contato = Contato.codigo AND
             Atendimento.cliente = Contato.codigoCliente
         )	
-    INNER JOIN 
+    LEFT JOIN 
             scoreatendimento ON (Atendimento.id = scoreatendimento.idAtendimento)
     ;
 
 CREATE OR REPLACE VIEW View_Contato AS
-SELECT contato.*, IFNULL(scores.score, 0) AS score FROM contato 
-   LEFT JOIN (SELECT cliente, contato, AVG(score) AS score FROM View_Atendimento_Score GROUP BY cliente, contato) scores ON contato.codigoCliente = scores.cliente AND contato.id = scores.contato;
+SELECT contato.*, IFNULL(scores.score, 0) AS score, MAX(Atendimento.dataInicio) as DataUltimaAtualizacao FROM contato 
+   LEFT JOIN (SELECT cliente, contato, AVG(score) AS score FROM View_Atendimento_Score GROUP BY cliente, contato) scores ON contato.codigoCliente = scores.cliente AND contato.id = scores.contato
+   LEFT JOIN Atendimento ON (Atendimento.contato = Contato.codigo AND Atendimento.cliente = Contato.codigoCliente)
+   GROUP BY Contato.codigo, Contato.codigoCliente;
 
 CREATE OR REPLACE VIEW View_Sistema_Contratado AS
 SELECT sistema.*, IFNULL(scores.score, 0) AS score FROM sistemacontratado sistema
    LEFT JOIN (SELECT cliente, sistema, AVG(score) AS score FROM View_Atendimento_Score GROUP BY cliente, sistema) scores ON sistema.codigoCliente = scores.cliente AND sistema.codigoSistema = scores.sistema;
+
+Create index atualizacao_cliente_contato_idx ON Atendimento (cliente, contato)  ;

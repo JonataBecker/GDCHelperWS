@@ -23,11 +23,10 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.ArrayUtils;
 
 /**
- *
- * @author JonataBecker
+ * Classe responsável pela leitura dos arquivos da base de dados
  */
 public class DataFileReader {
-    
+
     private static final SimpleDateFormat FORMAT_DATE = new SimpleDateFormat("dd/MM/yy hh:mm:ss");
     private final EntityManager entityManager;
     private final int start;
@@ -36,21 +35,28 @@ public class DataFileReader {
     public DataFileReader() {
         this(null);
     }
-    
+
     public DataFileReader(EntityManager entityManager) {
         this(623813, 626813, entityManager);
     }
-    
+
     public DataFileReader(int start, int end) {
         this(start, end, null);
     }
-    
+
     public DataFileReader(int start, int end, EntityManager entityManager) {
         this.start = start;
         this.end = end;
         this.entityManager = entityManager;
     }
-    
+
+    /**
+     * Executa o carregamento de clientes
+     *
+     * @param file
+     * @return {@code List<Cliente>}
+     * @throws IOException
+     */
     public List<Cliente> loadClientes(String file) throws IOException {
         List<Cliente> clientes = new ArrayList<>();
         int i = 0;
@@ -100,7 +106,14 @@ public class DataFileReader {
         }
         return clientes;
     }
-    
+
+    /**
+     * Executa carregamento de contatos
+     *
+     * @param file
+     * @return {@code List<Contato>}
+     * @throws IOException
+     */
     public List<Contato> loadContatos(String file) throws IOException {
         List<Contato> contatos = new ArrayList<>();
         int i = 0;
@@ -126,7 +139,14 @@ public class DataFileReader {
         }
         return contatos;
     }
-    
+
+    /**
+     * Executa carregamento de técnicos
+     *
+     * @param file
+     * @return {@code List<Tecnico>}
+     * @throws IOException
+     */
     public List<Tecnico> loadTecnicos(String file) throws IOException {
         List<Tecnico> tecnicos = new ArrayList<>();
         int i = 0;
@@ -151,7 +171,14 @@ public class DataFileReader {
         }
         return tecnicos;
     }
-    
+
+    /**
+     * Executa carregamento de sistemas contratados
+     *
+     * @param file
+     * @return {@code List<SistemaContratado>}
+     * @throws IOException
+     */
     public List<SistemaContratado> loadSistemasContratados(String file) throws IOException {
         List<SistemaContratado> sistemas = new ArrayList<>();
         int i = 0;
@@ -171,7 +198,14 @@ public class DataFileReader {
         }
         return sistemas;
     }
-    
+
+    /**
+     * Executa carregamento de informações referente a atualizações de clientes
+     *
+     * @param file
+     * @return {@code List<Atualizacao>}
+     * @throws IOException
+     */
     public List<Atualizacao> loadAtualizacoes(String file) throws IOException {
         List<Atualizacao> atualizacoes = new ArrayList<>();
         int i = 0;
@@ -191,11 +225,26 @@ public class DataFileReader {
         }
         return atualizacoes;
     }
-    
+
+    /**
+     * Executa carregamento de atendimentos
+     * 
+     * @param file
+     * @return {@code List<Atendimento>}
+     * @throws IOException 
+     */
     public List<Atendimento> loadAtendimentos(String file) throws IOException {
         return loadAtendimentos(System.getProperty("user.home"), file);
     }
-    
+
+    /**
+     * Executa carregamento de atendimentos
+     * 
+     * @param path
+     * @param file
+     * @return {@code List<Atendimento>}
+     * @throws IOException 
+     */
     public List<Atendimento> loadAtendimentos(String path, String file) throws IOException {
         List<Atendimento> atendimentos = new ArrayList<>();
         int i = 0;
@@ -226,6 +275,12 @@ public class DataFileReader {
         return atendimentos;
     }
     
+    /**
+     * Converte literal em valor inteiro
+     * 
+     * @param value
+     * @return int
+     */
     private int getInt(String value) {
         if (isEmpty(value)) {
             return 0;
@@ -233,6 +288,12 @@ public class DataFileReader {
         return Integer.valueOf(value);
     }
 
+    /**
+     * Converte literal em data
+     * 
+     * @param value
+     * @return 
+     */
     private Date getDate(String value) {
         try {
             if (!isEmpty(value)) {
@@ -243,7 +304,13 @@ public class DataFileReader {
         }
         return null;
     }
-    
+
+    /**
+     * Retorna verdadeiro se coluna não possui valor
+     * 
+     * @param value
+     * @return boolean
+     */
     private boolean isEmpty(String value) {
         return value == null || value.isEmpty();
     }
@@ -251,7 +318,7 @@ public class DataFileReader {
     private String stringSuffle(String value) {
         List bytes = Arrays.asList(ArrayUtils.toObject(value.getBytes()));
         Collections.shuffle(bytes);
-        return new String(ArrayUtils.toPrimitive((Byte[]) bytes.toArray(new Byte[] {})));
+        return new String(ArrayUtils.toPrimitive((Byte[]) bytes.toArray(new Byte[]{})));
     }
-    
+
 }

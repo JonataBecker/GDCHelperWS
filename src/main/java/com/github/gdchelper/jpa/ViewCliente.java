@@ -25,7 +25,6 @@ import jdk.nashorn.internal.ir.annotations.Immutable;
 
 /**
  *
- * @author Pichau
  */
 @Entity
 @Immutable

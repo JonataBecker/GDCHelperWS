@@ -11,8 +11,7 @@ import javax.persistence.Table;
 import jdk.nashorn.internal.ir.annotations.Immutable;
 
 /**
- *
- * @author JonataBecker
+ * View com informações de quantidade/Tempo total de atendimentos por periodo
  */
 @Entity
 @Immutable

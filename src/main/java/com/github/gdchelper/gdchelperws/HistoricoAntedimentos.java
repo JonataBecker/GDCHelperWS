@@ -8,11 +8,20 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 /**
- *
- * @author JonataBecker
+ * Classe responsável por retornar informações de histótico de atendimentos
  */
 public class HistoricoAntedimentos {
 
+    /**
+     * Retorna o histórico de atendimentos
+     * 
+     * @param em
+     * @param dataInicial
+     * @param dataFinal
+     * @param gdc
+     * @param cliente
+     * @return List
+     */
     public List getAtendimentos(EntityManager em, String dataInicial, String dataFinal, String gdc, String cliente) {
         String sql = "SELECT \n"
                 + "	CONCAT(Atendimento.cliente, '-', Cliente.nome) AS Cliente, \n"
@@ -56,7 +65,16 @@ public class HistoricoAntedimentos {
         });
         return list;
     }
-
+    
+    /**
+     * Retorna o histórico de atendimentos por contato
+     * 
+     * @param em
+     * @param idCliente
+     * @param dataInicial
+     * @param dataFinal
+     * @return List
+     */
     public List getContato(EntityManager em, int idCliente, String dataInicial, String dataFinal) {
         String sql = "SELECT \n"
                 + "  COUNT(*) AS quantidade, \n"
@@ -87,7 +105,16 @@ public class HistoricoAntedimentos {
         });
         return list;
     }
-
+    
+    /**
+     * Retorna o histórico de atendimentos por sistema
+     * 
+     * @param em
+     * @param idCliente
+     * @param dataInicial
+     * @param dataFinal
+     * @return List
+     */
     public List getSitema(EntityManager em, int idCliente, String dataInicial, String dataFinal) {
         String sql = "SELECT \n"
                 + "  COUNT(*) AS quantidade, \n"

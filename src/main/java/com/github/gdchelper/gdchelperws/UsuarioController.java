@@ -11,8 +11,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 /**
- *
- * @author JonataBecker
+ * Controller responsável por informações de usuários do sistema
  */
 @Controller
 public class UsuarioController {
@@ -32,7 +31,10 @@ public class UsuarioController {
         this.result = result;
         this.persistenceManager = persistenceManager;
     }
-  
+
+    /**
+     * Retorna os usuários do sistema
+     */
     @Get("/usuarios")
     public void usuarios() {
         EntityManager em = persistenceManager.create();
@@ -44,5 +46,5 @@ public class UsuarioController {
             em.close();
         }
     }
-    
+
 }
