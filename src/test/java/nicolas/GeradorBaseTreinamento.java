@@ -43,7 +43,7 @@ public class GeradorBaseTreinamento {
 
     public static void main(String[] args) throws Exception {
         GeradorBaseTreinamento t = new GeradorBaseTreinamento();
-        List<Atendimento> atendimentos = new DataFileReader(START, END).loadAtendimentos(System.getProperty("user.home") + "/atendimentos.csv");
+        List<Atendimento> atendimentos = new DataFileReader(START, END).loadAtendimentos("atendimentos.dsv");
         List<FraseTreinamento> classificados = t.loadTreinamentos();
         
         // TESTE: USA SÓ BOM E RUIM
@@ -196,7 +196,7 @@ public class GeradorBaseTreinamento {
     
     private String getModel(String name) {
         String path = GeradorBaseTreinamento.class.getProtectionDomain().getCodeSource().getLocation().getPath().replace("target/test-classes/", "");
-        return path + "src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\" + name;
+        return path + "src\\main\\resources\\com\\github\\gdchelper\\gdchelperws\\models\\" + name;
     }
     
     private InputStream getStreamFrom(List<FraseTreinamento> treinamento) {
