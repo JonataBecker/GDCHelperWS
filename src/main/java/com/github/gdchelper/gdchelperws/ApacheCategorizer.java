@@ -48,7 +48,7 @@ public class ApacheCategorizer {
      * @throws java.io.IOException
      */
     public static ApacheCategorizer fromTraining() throws IOException {
-        return fromTraining(loadTreinamentos());
+        return fromTraining(new ListaFraseTreinamentos().getList());
     }
 
     /**
@@ -70,29 +70,6 @@ public class ApacheCategorizer {
         DocumentCategorizerME myCategorizer = new DocumentCategorizerME(model);
         System.setOut(original);
         return new ApacheCategorizer(myCategorizer);
-    }
-    
-    private static List<FraseTreinamento> loadTreinamentos() throws IOException {
-        List<FraseTreinamento> treinamentos = new ArrayList<>();
-        int i = 0;
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getModel("sentiment.bin")))) {
-            while (true) {
-                String l = reader.readLine();
-                if (l == null) {
-                    break;
-                }
-                if (l.trim().isEmpty()) {
-                    continue;
-                }
-                String[] parts = l.split("\\s+", 2);
-                treinamentos.add(new FraseTreinamento(parts[0], new SentencePreprocessor().process(parts[1])));
-            }
-        }
-        return treinamentos;
-    }
-    
-    private static InputStream getModel(String name) {
-        return ApacheCategorizer.class.getResourceAsStream("/com/github/gdchelper/gdchelperws/models/" + name);
     }
 
     /**

@@ -63,7 +63,7 @@ public class TestaClassificacaoApacheNlp {
         // TESTE: USA SÓ BOM E RUIM
         classificados = classificados.stream().map((frase) -> new FraseTreinamento(frase.getCategoria().replaceFirst("^m", ""), frase.getFrase())).collect(Collectors.toList());
         // TESTE: IGNORA NEUTRO
-        classificados = classificados.stream().filter((frase) -> !frase.getCategoria().equals("neutro")).collect(Collectors.toList());
+        //classificados = classificados.stream().filter((frase) -> !frase.getCategoria().equals("neutro")).collect(Collectors.toList());
         classificados = classificados.stream().filter((frase) -> !frase.getCategoria().equals("pergu")).collect(Collectors.toList());
         
         List<FraseTreinamento> treinamento = new ArrayList<>(classificados);
@@ -110,14 +110,15 @@ public class TestaClassificacaoApacheNlp {
             CategorizerResult outcomes = categorizer.categorize(fraseTreinamento.getFrase());
             String classificado = outcomes.getBest();
             String esperado = fraseTreinamento.getCategoria();
-            
-//            if (outcomes.getTrust(classificado) < 0.5) {
-//                continue;
-//            }
-            
+
             if (classificado.equals(esperado)) {
                 certos++;
             } else {
+                if (echo) {
+                    System.out.println("## Errou: " + fraseTreinamento.getFrase());
+                    System.out.println("\tEsperado: " + esperado);
+                    System.out.println("\tClassifi: " + classificado);
+                }
                 errados++;
             }
             int atual = matriz.get(classificado).get(esperado);
@@ -170,7 +171,7 @@ public class TestaClassificacaoApacheNlp {
     
     private String getModel(String name) {
         String path = GeradorBaseTreinamento.class.getProtectionDomain().getCodeSource().getLocation().getPath().replace("target/test-classes/", "");
-        return path + "src\\main\\java\\com\\github\\gdchelper\\gdchelperws\\models\\" + name;
+        return path + "src\\main\\resources\\com\\github\\gdchelper\\gdchelperws\\models\\" + name;
     }
 
 }

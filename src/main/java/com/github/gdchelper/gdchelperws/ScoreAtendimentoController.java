@@ -1,7 +1,9 @@
 package com.github.gdchelper.gdchelperws;
 
+import br.com.caelum.vraptor.Consumes;
 import br.com.caelum.vraptor.Controller;
 import br.com.caelum.vraptor.Get;
+import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.view.Results;
 import com.github.gdchelper.jpa.PersistenceManager;
@@ -20,20 +22,23 @@ public class ScoreAtendimentoController {
     private final PersistenceManager persistenceManager;
     private final SentenceSplitter sentenceSpliter;
     private final ApacheCategorizer categorizer;
+    private final ListaFraseTreinamentos listaFrasesTreinamento;
 
     /**
      * @deprecated CDI eyes only
      */
     public ScoreAtendimentoController() throws IOException {
-        this(null, null, null);
+        this(null, null, null, null);
     }
 
     @Inject
-    public ScoreAtendimentoController(Result result, PersistenceManager persistenceManager, SentenceSplitter sentenceSpliter) throws IOException {
+    public ScoreAtendimentoController(Result result, PersistenceManager persistenceManager, 
+            SentenceSplitter sentenceSpliter, ListaFraseTreinamentos listaFrasesTreinamento) throws IOException {
         this.result = result;
         this.persistenceManager = persistenceManager;
         this.sentenceSpliter = sentenceSpliter;
         this.categorizer = ApacheCategorizer.fromTraining();
+        this.listaFrasesTreinamento = listaFrasesTreinamento;
     }
     
     @Get("/score")
@@ -51,6 +56,14 @@ public class ScoreAtendimentoController {
         } finally {
             em.close();
         }
+    }
+    
+    @Post("/score/treina")
+    @Consumes("application/json")
+    public void scoreTreina(String classificacao, String texto) {
+        FraseTreinamento frase = new FraseTreinamento(classificacao, texto);
+        listaFrasesTreinamento.add(frase);
+        result.use(Results.json()).withoutRoot().from(frase).serialize();
     }
     
     @Get("/score/compute")
