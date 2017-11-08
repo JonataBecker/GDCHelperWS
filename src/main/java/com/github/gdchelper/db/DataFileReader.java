@@ -165,7 +165,8 @@ public class DataFileReader {
                 tecnico.setApelido(record.get(1));
                 tecnico.setNome(record.get(4));
                 tecnico.setSetor(getInt(record.get(6)));
-                tecnico.setFoto(record.get(97).replace("F:\\RECH\\Usr\\FOTOS\\", ""));
+                tecnico.setFoto(record.get(97));
+                tecnico.setFoto(tecnico.getFoto().substring(tecnico.getFoto().lastIndexOf("\\") + 1));
                 tecnicos.add(tecnico);
             }
         }
