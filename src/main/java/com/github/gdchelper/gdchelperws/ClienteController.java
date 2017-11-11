@@ -182,7 +182,7 @@ public class ClienteController {
     public void clienteAtualizacoes(int idCliente) {
         EntityManager em = persistenceManager.create();
         try {
-            String sql = "SELECT * FROM Atualizacao WHERE codigoCliente = :cliente";
+            String sql = "SELECT a FROM Atualizacao a WHERE codigoCliente = :cliente order by data desc";
             Query q = em.createQuery(sql);
             q.setParameter("cliente", idCliente);
             List<Atualizacao> userList = q.getResultList();
