@@ -4,6 +4,7 @@ import br.com.caelum.vraptor.Controller;
 import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.view.Results;
+import com.github.gdchelper.jpa.Atualizacao;
 import com.github.gdchelper.jpa.PersistenceManager;
 import com.github.gdchelper.jpa.ViewCliente;
 import com.github.gdchelper.jpa.ViewClienteAtendimento;
@@ -35,6 +36,11 @@ public class ClienteController {
         this.persistenceManager = persistenceManager;
     }
 
+    /**
+     * Retorna os dados de um determinado cliente
+     * 
+     * @param idCliente 
+     */
     @Get("/cliente/{idCliente}")
     public void Cliente(int idCliente) {
         EntityManager em = persistenceManager.create();
@@ -42,6 +48,12 @@ public class ClienteController {
         em.close();
     }
 
+    /**
+     * Retorna a lista de clientes de um determinado gerente de contas
+     * 
+     * @param gdc
+     * @param ordem 
+     */
     @Get("/cliente")
     public void listaClientes(String gdc, String ordem) {
         String apelidoGdc = "";
@@ -79,6 +91,12 @@ public class ClienteController {
         }
     }
 
+    /**
+     * Retorna a lista de contatos de um determinado cliente
+     * 
+     * @param idCliente
+     * @param ordem 
+     */
     @Get("/contatos")
     public void contatosCliente(int idCliente, String ordem) {
         EntityManager em = persistenceManager.create();
@@ -155,4 +173,42 @@ public class ClienteController {
         }
     }
 
+    /**
+     * Retorna as atualizações de um determinado cliente
+     * 
+     * @param idCliente 
+     */
+    @Get("/cliente/{idCliente}/atualizacoes")
+    public void clienteAtualizacoes(int idCliente) {
+        EntityManager em = persistenceManager.create();
+        try {
+            String sql = "SELECT * FROM Atualizacao WHERE codigoCliente = :cliente";
+            Query q = em.createQuery(sql);
+            q.setParameter("cliente", idCliente);
+            List<Atualizacao> userList = q.getResultList();
+            result.use(Results.json()).withoutRoot().from(userList).serialize();
+        } finally {
+            em.close();
+        }
+    }
+    
+    /**
+     * Retorna as atualizações de troca de versão de um determinado cliente
+     * 
+     * @param idCliente 
+     */
+    @Get("/cliente/{idCliente}/trocasVersao")
+    public void clienteAtualizacoesTrocaVersao(int idCliente) {
+        EntityManager em = persistenceManager.create();
+        try {
+            String sql = "SELECT versao, MIN(data) FROM Atualizacao WHERE codigoCliente = :cliente group by versao order by data desc";
+            Query q = em.createQuery(sql);
+            q.setParameter("cliente", idCliente);
+            q.setMaxResults(5);
+            List<Atualizacao> userList = q.getResultList();
+            result.use(Results.json()).withoutRoot().from(userList).serialize();
+        } finally {
+            em.close();
+        }
+    }
 }
