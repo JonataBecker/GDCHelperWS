@@ -90,6 +90,7 @@ public class DataFileReader {
                 cliente.setCep(record.get(21));
                 cliente.setUf(record.get(22));
                 cliente.setDataCadastro(getDate(record.get(36)));
+                // Relaciona o GDC ao técnico
                 Tecnico tec = null;
                 try {
                     tec = entityManager.find(Tecnico.class, getInt(record.get(39)));
@@ -293,7 +294,7 @@ public class DataFileReader {
      * Converte literal em data
      * 
      * @param value
-     * @return 
+     * @return Data formatada
      */
     private Date getDate(String value) {
         try {
@@ -316,6 +317,12 @@ public class DataFileReader {
         return value == null || value.isEmpty();
     }
 
+    /**
+     * Embaralha string
+     * 
+     * @param value
+     * @return String embaralhada
+     */
     private String stringSuffle(String value) {
         List bytes = Arrays.asList(ArrayUtils.toObject(value.getBytes()));
         Collections.shuffle(bytes);

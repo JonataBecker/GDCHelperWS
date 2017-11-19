@@ -1,4 +1,3 @@
-
 package com.github.gdchelper.gdchelperws;
 
 import com.github.gdchelper.jpa.Atendimento;

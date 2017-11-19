@@ -34,7 +34,7 @@ public class DashController {
     }
 
     /**
-     * Retorna informações de quantidade/Tempo total de atendimentos por periodo
+     * Retorna informações de quantidade/Tempo total de atendimentos por período
      *
      * @param gdc
      */

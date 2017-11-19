@@ -7,7 +7,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 /**
- * Classe responsável pela criação de objetos responsáveis pela manipiação da base de dados
+ * Classe responsável pela criação de objetos responsáveis pela manipulação da base de dados
  */
 @ApplicationScoped
 public class PersistenceManager {
@@ -15,9 +15,9 @@ public class PersistenceManager {
     private EntityManagerFactory factory;
 
     /**
-     * Cria objeto responsável pela manipiação da base de dados
+     * Cria objeto responsável pela manipulação da base de dados
      * 
-     * @return 
+     * @return Gerenciador de entidades
      */
     public EntityManager create() {
         if (factory == null) {

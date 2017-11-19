@@ -3,7 +3,7 @@ package com.github.gdchelper.gdchelperws;
 import java.util.Map;
 
 /**
- * Resultado do classficiador
+ * Resultado do classificador
  */
 public class CategorizerResult {
     
@@ -19,6 +19,11 @@ public class CategorizerResult {
         this.classes = classes;
     }
     
+    /**
+     * Busca melhor resultado
+     * 
+     * @return Melhor resultado
+     */
     public String getBest() {
         String best = null;
         for (Map.Entry<String, Double> entry : classes.entrySet()) {

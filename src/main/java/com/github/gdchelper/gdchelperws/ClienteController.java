@@ -17,6 +17,9 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+/**
+ * Controller responsável por informações do cliente
+ */
 @Controller
 public class ClienteController {
 
@@ -58,6 +61,7 @@ public class ClienteController {
     public void listaClientes(String gdc, String ordem) {
         String apelidoGdc = "";
         int codigoGdc = 0;
+        // Verifica se deve filtrar o GDC por código ou apelido
         if (gdc != null) {
             try {
                 codigoGdc = Integer.parseInt(gdc);

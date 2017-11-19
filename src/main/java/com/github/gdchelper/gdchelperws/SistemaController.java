@@ -11,6 +11,9 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+/**
+ * Controller responsável por informações dos sistemas contratados
+ */
 @Controller
 public class SistemaController {
 
@@ -30,6 +33,9 @@ public class SistemaController {
         this.persistenceManager = persistenceManager;
     }
 
+    /**
+     * Retorna lista de sistemas disponíveis para contratação
+     */
     @Get("/sistemas")
     public void listaSistemasDisponiveis() {
         EntityManager em = persistenceManager.create();
@@ -43,6 +49,12 @@ public class SistemaController {
 
     }
 
+    /**
+     * Retorna dados dos sistemas contratados por um determinado cliente
+     * 
+     * @param idCliente
+     * @param ordem 
+     */
     @Get("/sistema")
     public void Sistema(int idCliente, String ordem) {
         EntityManager em = persistenceManager.create();

@@ -8,7 +8,7 @@ import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 
 /**
- *
+ * Classe responsável por separar as frases de uma string
  */
 public class SentenceSplitter {
 

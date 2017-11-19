@@ -11,7 +11,7 @@ import javax.persistence.Table;
 import jdk.nashorn.internal.ir.annotations.Immutable;
 
 /**
- * View com informações de quantidade/Tempo total de atendimentos por periodo
+ * View com informações de quantidade/Tempo total de atendimentos por período
  */
 @Entity
 @Immutable
@@ -34,42 +34,92 @@ public class ViewAtendimentoPeriodoTecnico implements Serializable {
     public ViewAtendimentoPeriodoTecnico() {
     }
 
+    /**
+     * Retorna o período do atendimento
+     * 
+     * @return Período
+     */
     public String getPeriodo() {
         return periodo;
     }
 
+    /**
+     * Define o período do atendimento
+     * 
+     * @param periodo 
+     */
     public void setPeriodo(String periodo) {
         this.periodo = periodo;
     }
 
+    /**
+     * Retorna o período do atendimento
+     * 
+     * @return Período
+     */
     public String getPeriodoUSA() {
         return periodoUSA;
     }
 
+    /**
+     * Define o período do atendimento
+     * 
+     * @param periodoUSA 
+     */
     public void setPeriodoUSA(String periodoUSA) {
         this.periodoUSA = periodoUSA;
     }
 
+    /**
+     * Retorna a quantidade de atendimentos
+     * 
+     * @return Quantidade de atendimentos
+     */
     public BigDecimal getQuantidade() {
         return quantidade;
     }
 
+    /**
+     * Define a quantidade de atendimentos
+     * 
+     * @param quantidade 
+     */
     public void setQuantidade(BigDecimal quantidade) {
         this.quantidade = quantidade;
     }
 
+    /**
+     * Retorna o tempo de atendimento
+     * 
+     * @return Tempo de atendimento
+     */
     public String getTempo() {
         return tempo;
     }
 
+    /**
+     * Define o tempo de atendimento
+     * 
+     * @param tempo 
+     */
     public void setTempo(String tempo) {
         this.tempo = tempo;
     }
 
+    /**
+     * Retorna o técnico do atendimento
+     * 
+     * @return Técnico
+     */
     public String getTecnico() {
         return tecnico;
     }
 
+    /**
+     * Define o técnico do atendimento
+     * 
+     * @param tecnico 
+     */
     public void setTecnico(String tecnico) {
         this.tecnico = tecnico;
     }

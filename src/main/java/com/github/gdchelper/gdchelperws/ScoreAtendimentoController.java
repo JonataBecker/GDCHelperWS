@@ -15,6 +15,9 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+/**
+ * Controller responsável por informações do score de atendimento
+ */
 @Controller
 public class ScoreAtendimentoController {
     
@@ -41,6 +44,11 @@ public class ScoreAtendimentoController {
         this.listaFrasesTreinamento = listaFrasesTreinamento;
     }
     
+    /**
+     * Retorna scores conforme filtro
+     * 
+     * @param filter 
+     */
     @Get("/score")
     public void score(String filter) {
         EntityManager em = persistenceManager.create();
@@ -58,6 +66,12 @@ public class ScoreAtendimentoController {
         }
     }
     
+    /**
+     * Adiciona frase na base de treinamento
+     * 
+     * @param classificacao
+     * @param texto 
+     */
     @Post("/score/treina")
     @Consumes("application/json")
     public void scoreTreina(String classificacao, String texto) {
@@ -66,6 +80,11 @@ public class ScoreAtendimentoController {
         result.use(Results.json()).withoutRoot().from(frase).serialize();
     }
     
+    /**
+     * Calcula score de um atendimento
+     * 
+     * @param text 
+     */
     @Get("/score/compute")
     public void compute(String text) {
         try {

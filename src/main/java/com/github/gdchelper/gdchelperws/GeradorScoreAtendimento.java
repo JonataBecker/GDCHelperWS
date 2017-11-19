@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- *
+ * Classe responsável pela geração do score do atendimento ao cliente
  */
 public class GeradorScoreAtendimento {
 

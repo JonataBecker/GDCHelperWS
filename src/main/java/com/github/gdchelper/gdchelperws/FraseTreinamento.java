@@ -2,6 +2,9 @@ package com.github.gdchelper.gdchelperws;
 
 import java.util.Objects;
 
+/**
+ * Classe responsável por informações das frases de treinamento
+ */
 public class FraseTreinamento {
     
     private final String categoria;
@@ -12,10 +15,20 @@ public class FraseTreinamento {
         this.frase = frase;
     }
 
+    /**
+     * Retorna a categoria da frase de treinamento
+     * 
+     * @return Categoria
+     */
     public String getCategoria() {
         return categoria;
     }
 
+    /**
+     * Retorna a frase de treinamento
+     * 
+     * @return Frase
+     */
     public String getFrase() {
         return frase;
     }

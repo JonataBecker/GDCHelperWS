@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.github.gdchelper.jpa;
 
 import java.io.Serializable;
@@ -19,7 +14,7 @@ import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- *
+ * View com informações dos contatos do cliente
  */
 @Entity
 @Table(name = "view_contato")
@@ -73,74 +68,164 @@ public class ViewContato implements Serializable {
     public ViewContato() {
     }
 
+    /**
+     * Retorna o ID do contato
+     * 
+     * @return ID do contato
+     */
     public int getId() {
         return id;
     }
 
+    /**
+     * Define o ID do contato
+     * 
+     * @param id 
+     */
     public void setId(int id) {
         this.id = id;
     }
 
+    /**
+     * Retorna o cargo do contato
+     * 
+     * @return Cargo
+     */
     public String getCargo() {
         return cargo;
     }
 
+    /**
+     * Define o cargo do contato
+     * 
+     * @param cargo 
+     */
     public void setCargo(String cargo) {
         this.cargo = cargo;
     }
 
+    /**
+     * Retorna o código do contato do cliente
+     * 
+     * @return Código do contato
+     */
     public int getCodigo() {
         return codigo;
     }
 
+    /**
+     * Define o código do contato do cliente
+     * 
+     * @param codigo 
+     */
     public void setCodigo(int codigo) {
         this.codigo = codigo;
     }
 
+    /**
+     * Retorna o código do cliente
+     * 
+     * @return Código do cliente
+     */
     public int getCodigoCliente() {
         return codigoCliente;
     }
 
+    /**
+     * Define o código do cliente
+     * 
+     * @param codigoCliente 
+     */
     public void setCodigoCliente(int codigoCliente) {
         this.codigoCliente = codigoCliente;
     }
 
+    /**
+     * Retorna o e-mail do contato
+     * 
+     * @return E-mail
+     */
     public String getEmail() {
         return email;
     }
 
+    /**
+     * Define o e-mail do contato
+     * 
+     * @param email 
+     */
     public void setEmail(String email) {
         this.email = email;
     }
 
+    /**
+     * Retorna o nome do contato
+     * 
+     * @return Nome
+     */
     public String getNome() {
         return nome;
     }
 
+    /**
+     * Define o nome do contato
+     * 
+     * @param nome 
+     */
     public void setNome(String nome) {
         this.nome = nome;
     }
 
+    /**
+     * Retorna o telefone do contato
+     * 
+     * @return Telefone
+     */
     public String getTelefone() {
         return telefone;
     }
 
+    /**
+     * Define o telefone do contato
+     * 
+     * @param telefone 
+     */
     public void setTelefone(String telefone) {
         this.telefone = telefone;
     }
 
+    /**
+     * Retorna o score dos atendimentos do contato
+     * 
+     * @return Score
+     */
     public double getScore() {
         return score;
     }
 
+    /**
+     * Define o score dos atendimentos do contato
+     * 
+     * @param score 
+     */
     public void setScore(double score) {
         this.score = score;
     }
 
+    /**
+     * Retorna a data de último atendimento do contato
+     * 
+     * @return Data último atendimento
+     */
     public Date getDataUltimaAtualizacao() {
         return dataUltimoAtendimento;
     }
 
+    /**
+     * Define a data de último atendimento do contato
+     * 
+     * @param dataUltimaAtualizacao 
+     */
     public void setDataUltimaAtualizacao(Date dataUltimaAtualizacao) {
         this.dataUltimoAtendimento = dataUltimaAtualizacao;
     }

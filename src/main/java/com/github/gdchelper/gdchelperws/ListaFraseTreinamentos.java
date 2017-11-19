@@ -87,10 +87,7 @@ public class ListaFraseTreinamentos {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        // TESTE: USA SÓ BOM E RUIM
         treinamentos = treinamentos.stream().map((frase) -> new FraseTreinamento(frase.getCategoria().replaceFirst("^m", ""), frase.getFrase())).collect(Collectors.toSet());
-        // TESTE: IGNORA NEUTRO
-        //treinamentos = treinamentos.stream().filter((frase) -> !frase.getCategoria().equals("neutro")).collect(Collectors.toSet());
         treinamentos = treinamentos.stream().filter((frase) -> !frase.getCategoria().equals("pergu")).collect(Collectors.toSet());
         return treinamentos;
     }

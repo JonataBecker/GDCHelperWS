@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.github.gdchelper.jpa;
 
 import java.io.Serializable;
@@ -21,7 +16,7 @@ import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- *
+ * View com informações do score de atendimento
  */
 @Entity
 @Table(name = "View_Score_Atendimento")
@@ -86,90 +81,200 @@ public class ViewScoreAtendimento implements Serializable {
     public ViewScoreAtendimento() {
     }
 
+    /**
+     * Retorna o ID do score
+     * 
+     * @return ID do score
+     */
     public int getId() {
         return id;
     }
 
+    /**
+     * Define o ID do score
+     * 
+     * @param id 
+     */
     public void setId(int id) {
         this.id = id;
     }
 
+    /**
+     * Retorna o cliente do atendimento
+     * 
+     * @return Cliente
+     */
     public int getCliente() {
         return cliente;
     }
 
+    /**
+     * Define o cliente do atendimento
+     * 
+     * @param cliente 
+     */
     public void setCliente(int cliente) {
         this.cliente = cliente;
     }
 
+    /**
+     * Retorna o contato do atendimento
+     * 
+     * @return Contato
+     */
     public int getContato() {
         return contato;
     }
 
+    /**
+     * Define o contato do atendimento
+     * 
+     * @param contato 
+     */
     public void setContato(int contato) {
         this.contato = contato;
     }
 
+    /**
+     * Retorna a data de criação do atendimento
+     * 
+     * @return Data de criação
+     */
     public Date getDataCriacao() {
         return dataCriacao;
     }
 
+    /**
+     * Define a data de criação do atendimento
+     * 
+     * @param dataCriacao 
+     */
     public void setDataCriacao(Date dataCriacao) {
         this.dataCriacao = dataCriacao;
     }
 
+    /**
+     * Retorna a data de fim do atendimento
+     * 
+     * @return Data de fim
+     */
     public Date getDataFim() {
         return dataFim;
     }
 
+    /**
+     * Define a data de fim do atendimento
+     * 
+     * @param dataFim 
+     */
     public void setDataFim(Date dataFim) {
         this.dataFim = dataFim;
     }
 
+    /**
+     * Retorna a data de início do atendimento
+     * 
+     * @return Data de início
+     */
     public Date getDataInicio() {
         return dataInicio;
     }
 
+    /**
+     * Define a data de início do atendimento
+     * 
+     * @param dataInicio 
+     */
     public void setDataInicio(Date dataInicio) {
         this.dataInicio = dataInicio;
     }
 
+    /**
+     * Retorna a mensagem do atendimento
+     * 
+     * @return Mensagem
+     */
     public String getMensagem() {
         return mensagem;
     }
 
+    /**
+     * Define a mensagem do atendimento
+     * 
+     * @param mensagem 
+     */
     public void setMensagem(String mensagem) {
         this.mensagem = mensagem;
     }
 
+    /**
+     * Retorna a quantidade de segundos do atendimento
+     * 
+     * @return Segundos
+     */
     public int getSegundos() {
         return segundos;
     }
 
+    /**
+     * Define a quantidade de segundos do atendimento
+     * 
+     * @param segundos 
+     */
     public void setSegundos(int segundos) {
         this.segundos = segundos;
     }
 
+    /**
+     * Retorna o sistema do atendimento
+     * 
+     * @return Sistema
+     */
     public String getSistema() {
         return sistema;
     }
 
+    /**
+     * Define o sistema do atendimento
+     * 
+     * @param sistema 
+     */
     public void setSistema(String sistema) {
         this.sistema = sistema;
     }
 
+    /**
+     * Retorna o técnico do atendimento
+     * 
+     * @return Técnico
+     */
     public int getTecnico() {
         return tecnico;
     }
 
+    /**
+     * Define o técnico do atendimento
+     * 
+     * @param tecnico 
+     */
     public void setTecnico(int tecnico) {
         this.tecnico = tecnico;
     }
 
+    /**
+     * Retorna o score do atendimento
+     * 
+     * @return Score
+     */
     public double getScore() {
         return score;
     }
 
+    /**
+     * Define o score do atendimento
+     * 
+     * @param score 
+     */
     public void setScore(double score) {
         this.score = score;
     }

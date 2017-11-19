@@ -25,6 +25,11 @@ public class ScoreUpdaterImpl implements ScoreUpdater {
         this.geradorScoreAtendimento = new GeradorScoreAtendimento();
     }
 
+    /**
+     * Atualiza score de atendimentos que ainda não possuem score registrado
+     * 
+     * @throws IOException 
+     */
     public void updateAtendimentosSemScore() throws IOException {
         EntityManager em = persistenceManager.create();
         Query q = em.createQuery("SELECT a FROM Atendimento a WHERE NOT EXISTS (SELECT DISTINCT(idAtendimento) FROM ScoreAtendimento WHERE idAtendimento = a.id)");

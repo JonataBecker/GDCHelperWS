@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.github.gdchelper.jpa;
 
 import java.io.Serializable;
@@ -18,7 +13,7 @@ import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- *
+ * View com informações dos sistemas contratados
  */
 @Entity
 @Table(name = "view_sistema_contratado")
@@ -57,42 +52,92 @@ public class ViewSistemaContratado implements Serializable {
     public ViewSistemaContratado() {
     }
 
+    /**
+     * Retorna o ID do sistema contratado
+     * 
+     * @return ID do sistema
+     */
     public int getId() {
         return id;
     }
 
+    /**
+     * Define o ID do sistema contratado
+     * 
+     * @param id 
+     */
     public void setId(int id) {
         this.id = id;
     }
 
+    /**
+     * Retorna o código do cliente
+     * 
+     * @return Código do cliente
+     */
     public int getCodigoCliente() {
         return codigoCliente;
     }
 
+    /**
+     * Define o código do cliente
+     * 
+     * @param codigoCliente 
+     */
     public void setCodigoCliente(int codigoCliente) {
         this.codigoCliente = codigoCliente;
     }
 
+    /**
+     * Retorna o código do sistema
+     * 
+     * @return Código do sistema
+     */
     public int getCodigoSistema() {
         return codigoSistema;
     }
 
+    /**
+     * Define o código do sistema
+     * 
+     * @param codigoSistema 
+     */
     public void setCodigoSistema(int codigoSistema) {
         this.codigoSistema = codigoSistema;
     }
 
+    /**
+     * Retorna a descrição do sistema contratado
+     * 
+     * @return Descrição
+     */
     public String getDescricao() {
         return descricao;
     }
 
+    /**
+     * Define a descrição do sistema contratado
+     * 
+     * @param descricao 
+     */
     public void setDescricao(String descricao) {
         this.descricao = descricao;
     }
 
+    /**
+     * Retorna o score do sistema contratado
+     * 
+     * @return Score
+     */
     public double getScore() {
         return score;
     }
 
+    /**
+     * Define o score do sistema contratado
+     * 
+     * @param score 
+     */
     public void setScore(double score) {
         this.score = score;
     }
